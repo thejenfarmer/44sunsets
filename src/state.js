@@ -179,5 +179,6 @@ export function stackBlock(material, index) {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     material,
     width: index === 4 ? 62 : WIDTHS[index % WIDTHS.length],
+    day: todayKey(), // lets the Stack's Day zoom show only today's landings
   }
 }

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import { todayKey } from '../state.js'
 
 // The Net (2f, final frame) — a holding place, not a list: items drift inside
 // a dashed boundary at loose alignments, pill-soft, undated, unnumbered.
@@ -132,20 +133,55 @@ export function Net({ netItems, setNetItems, goHome }) {
   )
 }
 
-// The Stack (2g, final frame) — sediment strata: pill layers in the three
-// materials with a hand-stacked horizontal jitter, accumulating bottom-up,
-// never coming down. Day/Week/Month/Year tabs beside the eyebrow. No counts.
-// After dark the room follows the sky.
+// The Stack (2g/3a) — one pile, four zoom levels. Strata accumulate
+// bottom-up, widths varied, colors = source material; only block count and
+// thickness change per tab. Week contains Day's blocks, Month contains
+// Week's, Year contains Month's — the same items re-compressed. No numbers,
+// no axes, no targets at any zoom. After dark the room follows the sky.
 
-function jitterFor(id) {
+function hashId(id) {
   let h = 0
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
-  return ((Math.abs(h) % 25) - 12) / 2 // ±6%
+  return Math.abs(h)
+}
+
+function jitterFor(id, div = 2) {
+  return ((hashId(id) % 25) - 12) / div // div 2 → ±6%, div 4 → ±3%
+}
+
+// Deterministic older strata that extend the pile below the week.
+const FILLER_MATS = ['sunset', 'bluegold', 'sunset', 'band', 'sunset', 'bluegold', 'band', 'sunset']
+
+function filler(tag, count) {
+  return Array.from({ length: count }, (_, i) => {
+    const h = hashId(`${tag}-${i}`)
+    return { id: `${tag}-${i}`, material: FILLER_MATS[h % FILLER_MATS.length], width: 58 + (h % 33) }
+  })
+}
+
+// Day: today's landings only, thickest. Week: the built 2g reference.
+// Month: re-compressed, ~half the frame. Year: 3a's thin book-spines.
+const ZOOMS = {
+  Day: { h: 34, gap: 8, r: 999, jitterDiv: 2 },
+  Week: { h: 26, gap: 6, r: 999, jitterDiv: 2 },
+  Month: { h: 14, gap: 4, r: 6, jitterDiv: 2 },
+  Year: { h: 9, gap: 3, r: 3, jitterDiv: 4 },
 }
 
 export function Stack({ stack, night, goHome }) {
   const [tab, setTab] = useState('Week')
-  const cream = 'rgba(250,243,231,.85)'
+
+  // Top of the pile is the newest landing; fillers are older, so they sit below.
+  const week = [...stack].reverse()
+  const month = [...week, ...filler('month', 14)]
+  const blocksByTab = {
+    Day: [...stack.filter((b) => b.day === todayKey())].reverse(),
+    Week: week,
+    Month: month,
+    Year: [...month, ...filler('year', 20)],
+  }
+  const zoom = ZOOMS[tab]
+  const blocks = blocksByTab[tab]
   return (
     <div
       className="screen grain"
@@ -181,23 +217,28 @@ export function Stack({ stack, night, goHome }) {
         </div>
       </div>
       <div style={{ font: "700 24px/1.2 'Poppins',sans-serif", letterSpacing: '-.01em', paddingTop: 14 }}>
-        The {tab.toLowerCase()}, stacking up.
+        {tab === 'Day' ? 'Today' : `The ${tab.toLowerCase()}`}, stacking up.
       </div>
       <div className="spacer col" style={{ justifyContent: 'flex-end', paddingTop: 20, overflow: 'hidden' }}>
-        <div className="col" style={{ gap: 6, alignItems: 'center' }}>
-          {[...stack].reverse().map((b) => (
+        <div className="col" style={{ gap: zoom.gap, alignItems: 'center' }}>
+          {blocks.map((b) => (
             <div
               key={b.id}
               className={`mat--${b.material}`}
               style={{
                 width: `${Math.round(b.width * 0.72)}%`,
-                height: tab === 'Year' ? 9 : 16,
-                borderRadius: 999,
-                transform: `translateX(${jitterFor(b.id)}%)`,
+                height: zoom.h,
+                borderRadius: zoom.r,
+                transform: `translateX(${jitterFor(b.id, zoom.jitterDiv)}%)`,
                 boxShadow: night ? 'none' : '0 3px 8px -4px rgba(34,26,18,.25)',
               }}
             />
           ))}
+          {blocks.length === 0 && (
+            <div style={{ font: "400 13px/1.4 'Poppins',sans-serif", color: night ? 'rgba(250,243,231,.5)' : 'rgba(34,26,18,.45)', paddingBottom: 20 }}>
+              Nothing yet — the day is young.
+            </div>
+          )}
         </div>
       </div>
       <div className="col" style={{ gap: 10, paddingTop: 20 }}>
