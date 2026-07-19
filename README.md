@@ -54,10 +54,10 @@ Tokens live in `src/styles.css`. The essentials, per the handoff spec:
   tilted doors (14d) or ribbons (14h); night deals the moonlit stack (14l) or
   starfield (14o); golden hour is 14n. The sky follows the clock. Settings can
   pin a layout ("My pick" vs "Fresh each morning").
-- Home deals FOUR doors: the 4th slot is the Scheduled session card while the
-  2:00 call is upcoming (before 2pm), and The Impossible Thing (sea-blue slab)
-  once it's past — completing the session also frees the slot early. Completed
-  doors come forward wearing a ✓ done state; the day-shape bar sits under the
+- Home deals up to FIVE cards: the three doors, Jen's Scheduled session card
+  while the 2:00 call is upcoming (it leaves once the session is done), and
+  The Impossible Thing (sea-blue slab) always at the back. Completed doors
+  come forward wearing a ✓ done state; the day-shape bar sits under the
   headline.
 - Demo content (side quests, the Net, the call, completed doors) re-deals
   every morning; the Stack accumulates across days by design.

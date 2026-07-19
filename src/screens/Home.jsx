@@ -22,11 +22,12 @@ const NIGHT_GRADS = {
 
 const NAMES = { deep: 'Deep Work', knockout: 'Knockout Round', quests: 'Side Quests', impossible: 'The Impossible Thing' }
 const SCREENS = { deep: 'deep', knockout: 'knockout', quests: 'quests', impossible: 'impossible', session: 'session' }
-const TILTS = [-1.2, 0.9, -0.7, 0.8]
+const TILTS = [-1.2, 0.9, -0.7, 0.8, -0.9]
 
-// Completed doors come forward (most recent first); the rest keep default order.
-function orderedDoors(completedDoors, fourth) {
-  const defaults = ['deep', 'knockout', 'quests', fourth]
+// Up to five cards: the three doors, Jen's card while the call is upcoming,
+// and The Impossible Thing at the back. Completed doors come forward.
+function orderedDoors(completedDoors, scheduledCall) {
+  const defaults = ['deep', 'knockout', 'quests', ...(scheduledCall ? ['session'] : []), 'impossible']
   const done = completedDoors.filter((d) => defaults.includes(d))
   return [...done, ...defaults.filter((d) => !done.includes(d))]
 }
@@ -99,8 +100,7 @@ function Stars() {
 }
 
 export default function Home({ outfit, skyMode, scheduledCall, completedDoors, go }) {
-  const fourth = scheduledCall ? 'session' : 'impossible'
-  const doors = orderedDoors(completedDoors, fourth)
+  const doors = orderedDoors(completedDoors, scheduledCall)
   const isDone = (d) => completedDoors.includes(d)
   const props = { doors, isDone, scheduledCall, go }
   if (skyMode === 'golden') return <GoldenHome {...props} />
@@ -116,12 +116,14 @@ export default function Home({ outfit, skyMode, scheduledCall, completedDoors, g
 
 // 14d — tilted material doors, names only, dawn wash + sun glow, day-shape bar.
 function TiltedHome({ doors, isDone, scheduledCall, go }) {
+  const compact = doors.length > 4
+  const minHeight = compact ? 90 : 104
   const renderDoor = (key, i) => {
     const tilt = TILTS[i % TILTS.length]
     const done = isDone(key)
     if (key === 'session') {
       return (
-        <button key={key} className="door" style={{ background: '#FFFDF6', border: '1px solid rgba(34,26,18,.1)', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -16px rgba(34,26,18,.35)' }} onClick={() => go('session')}>
+        <button key={key} className="door" style={{ minHeight, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.1)', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -16px rgba(34,26,18,.35)' }} onClick={() => go('session')}>
           <Avatar size={44} />
           <span style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
             <span style={{ font: "700 18px/1.2 'Poppins',sans-serif", letterSpacing: '-.01em' }}>Focus call with Jen</span>
@@ -133,7 +135,7 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
     }
     if (key === 'impossible') {
       return (
-        <button key={key} className="door" style={{ background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', color: '#FAF3E7', borderRadius: 28, transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', opacity: done ? DONE_OPACITY : 1 }} onClick={() => go('impossible')}>
+        <button key={key} className="door" style={{ minHeight, background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', color: '#FAF3E7', borderRadius: 28, transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', opacity: done ? DONE_OPACITY : 1 }} onClick={() => go('impossible')}>
           <span style={{ flex: 1 }}>
             <span className="door-name" style={{ flex: 'none' }}>{NAMES.impossible}</span>
             {done && <DoneSub dark />}
@@ -148,6 +150,7 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
         key={key}
         className={`door${dark ? ' grain grain--band' : ''}`}
         style={{
+          minHeight,
           background: DOOR_GRADS[key],
           transform: `rotate(${tilt}deg)`,
           boxShadow: { deep: '0 14px 26px -14px rgba(244,166,155,.9)', knockout: '0 14px 26px -14px rgba(46,155,130,.8)', quests: '0 14px 26px -14px rgba(47,127,160,.8)' }[key],
@@ -346,7 +349,7 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
             {isDone('quests') ? '✓ SIDE QUESTS' : '← SIDE QUESTS'}
           </span>
         </button>
-        {scheduledCall ? (
+        {scheduledCall && (
           <button
             style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.12)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 10px 20px -10px rgba(34,26,18,.4)', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', zIndex: 3 }}
             onClick={() => go('session')}
@@ -358,18 +361,17 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
               <span style={{ fontWeight: 500, color: 'rgba(34,26,18,.5)' }}>{scheduledCall.time}</span>
             </span>
           </button>
-        ) : (
-          <button
-            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', zIndex: 3, opacity: isDone('impossible') ? DONE_OPACITY : 1 }}
-            onClick={() => go('impossible')}
-          >
-            <span style={{ font: "600 11px/1.35 'Poppins',sans-serif", color: '#FAF3E7', textAlign: 'left' }}>
-              {isDone('impossible') ? '✓ ' : ''}The Impossible
-              <br />
-              Thing {isDone('impossible') ? '' : '→'}
-            </span>
-          </button>
         )}
+        <button
+          style={{ position: 'absolute', left: -24, bottom: '4%', width: 112, height: 64, background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', borderRadius: 18, transform: 'rotate(2deg)', boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', zIndex: 3, opacity: isDone('impossible') ? DONE_OPACITY : 1 }}
+          onClick={() => go('impossible')}
+        >
+          <span style={{ font: "600 11px/1.35 'Poppins',sans-serif", color: '#FAF3E7', textAlign: 'left' }}>
+            {isDone('impossible') ? '✓ ' : ''}The Impossible
+            <br />
+            Thing {isDone('impossible') ? '' : '→'}
+          </span>
+        </button>
       </div>
       <button className="quiet" style={{ font: "500 13px/1 'Poppins',sans-serif", zIndex: 4 }} onClick={() => go('net')}>
         the Net's holding a few things →
