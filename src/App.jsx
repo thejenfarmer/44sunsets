@@ -117,7 +117,7 @@ export default function App() {
   } else if (screen === 'net') {
     body = <Net netItems={netItems} setNetItems={setNetItems} goHome={goHome} />
   } else if (screen === 'stack') {
-    body = <Stack stack={stack} goHome={goHome} />
+    body = <Stack stack={stack} night={skyMode === 'night'} goHome={goHome} />
   } else {
     body = <Home outfit={outfit} skyMode={skyMode} go={go} />
   }

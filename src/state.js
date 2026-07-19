@@ -1,6 +1,6 @@
 // Demo state helpers — all local, no backend. Jen's presence is mocked with timers.
 
-const KEY = 'adhd-founder-os-v2'
+const KEY = 'adhd-founder-os-v3'
 
 export function loadPersisted() {
   try {
@@ -111,7 +111,14 @@ export const DEMO = {
 
   sessionHand: ['Draft the fundraising narrative', 'Untangle the hiring plan'],
 
-  netItems: ['Chase the Stripe invoice', "Buy Sam's birthday gift", 'That podcast on pricing', 'Renew the domain'],
+  netItems: [
+    'Chase the Stripe invoice',
+    "Buy Sam's birthday gift",
+    'Look at the new office space',
+    'Idea: async standup memo',
+    'Renew passports',
+    'Intro Priya to the fintech GP',
+  ],
 
   jen: { name: 'Jen', oneLiner: 'sketching the onboarding flow' },
 }
@@ -120,8 +127,17 @@ export const DEMO = {
 const WIDTHS = [88, 72, 84, 78, 62, 80, 70, 86]
 
 export function seedStack() {
-  // The canvas pile, bottom-up: sunset 88 · band 72 · sunset 84 · blue→yellow 78.
+  // A week of strata for the Stack room; the LAST four match the canvas
+  // landing pile, bottom-up: sunset 88 · band 72 · sunset 84 · blue→yellow 78.
   return [
+    { id: 'seed-a', material: 'sunset', width: 74 },
+    { id: 'seed-b', material: 'bluegold', width: 82 },
+    { id: 'seed-c', material: 'band', width: 68 },
+    { id: 'seed-d', material: 'sunset', width: 86 },
+    { id: 'seed-e', material: 'bluegold', width: 76 },
+    { id: 'seed-f', material: 'sunset', width: 90 },
+    { id: 'seed-g', material: 'band', width: 70 },
+    { id: 'seed-h', material: 'sunset', width: 80 },
     { id: 'seed-1', material: 'sunset', width: 88 },
     { id: 'seed-2', material: 'band', width: 72 },
     { id: 'seed-3', material: 'sunset', width: 84 },
