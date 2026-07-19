@@ -50,17 +50,24 @@ function DayBar() {
   )
 }
 
-function DoneMark({ dark }) {
+// Done state (no reference frame; pinned spec): the card keeps its own
+// material at ~55% opacity and its tilt; the → circle becomes a filled ✓
+// circle in the rgba(250,243,231,.16) style; one quiet sub-line under the
+// title. No line-through, no green, no badge.
+const DONE_OPACITY = 0.55
+
+function DoneMark() {
   return (
-    <span
-      className="door-arrow"
-      style={{
-        background: dark ? 'rgba(250,243,231,.16)' : 'rgba(255,253,246,.75)',
-        color: dark ? '#FAF3E7' : '#221A12',
-        font: "600 16px/1 'Poppins',sans-serif",
-      }}
-    >
+    <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)', font: "600 16px/1 'Poppins',sans-serif" }}>
       ✓
+    </span>
+  )
+}
+
+function DoneSub({ dark }) {
+  return (
+    <span style={{ display: 'block', font: "500 13px/1 'Poppins',sans-serif", color: dark ? 'rgba(250,243,231,.6)' : 'rgba(34,26,18,.55)', marginTop: 5 }}>
+      Done today.
     </span>
   )
 }
@@ -126,9 +133,12 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
     }
     if (key === 'impossible') {
       return (
-        <button key={key} className="door" style={{ background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', color: '#FAF3E7', borderRadius: 28, transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', opacity: done ? 0.85 : 1 }} onClick={() => go('impossible')}>
-          <span className="door-name">{NAMES.impossible}</span>
-          {done ? <DoneMark dark /> : <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>→</span>}
+        <button key={key} className="door" style={{ background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', color: '#FAF3E7', borderRadius: 28, transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', opacity: done ? DONE_OPACITY : 1 }} onClick={() => go('impossible')}>
+          <span style={{ flex: 1 }}>
+            <span className="door-name" style={{ flex: 'none' }}>{NAMES.impossible}</span>
+            {done && <DoneSub dark />}
+          </span>
+          {done ? <DoneMark /> : <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>→</span>}
         </button>
       )
     }
@@ -143,12 +153,15 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
           boxShadow: { deep: '0 14px 26px -14px rgba(244,166,155,.9)', knockout: '0 14px 26px -14px rgba(46,155,130,.8)', quests: '0 14px 26px -14px rgba(47,127,160,.8)' }[key],
           color: dark ? '#FAF3E7' : undefined,
           overflow: dark ? 'hidden' : undefined,
-          opacity: done ? 0.85 : 1,
+          opacity: done ? DONE_OPACITY : 1,
         }}
         onClick={() => go(SCREENS[key])}
       >
-        <span className="door-name">{NAMES[key]}</span>
-        {done ? <DoneMark dark={dark} /> : <span className="door-arrow" style={{ background: dark ? 'rgba(250,243,231,.22)' : 'rgba(255,253,246,.55)' }}>→</span>}
+        <span style={{ flex: 1, position: 'relative' }}>
+          <span className="door-name" style={{ flex: 'none' }}>{NAMES[key]}</span>
+          {done && <DoneSub dark={dark} />}
+        </span>
+        {done ? <DoneMark /> : <span className="door-arrow" style={{ background: dark ? 'rgba(250,243,231,.22)' : 'rgba(255,253,246,.55)' }}>→</span>}
       </button>
     )
   }
@@ -211,13 +224,14 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
                 gap: 12,
                 padding: first ? '74px 26px 24px' : '20px 26px 24px',
                 borderTop: first ? 'none' : slab ? '2px solid rgba(143,199,224,.35)' : '2px solid rgba(34,26,18,.1)',
-                opacity: done ? 0.85 : 1,
+                opacity: done ? DONE_OPACITY : 1,
               }}
               onClick={() => go(SCREENS[key])}
             >
               {slab ? (
                 <span style={{ font: "700 17px/1.15 'Poppins',sans-serif", flex: 1, textAlign: 'left' }}>
-                  {done ? '✓ ' : ''}The Impossible Thing →
+                  The Impossible Thing {done ? '' : '→'}
+                  {done && <DoneSub dark />}
                 </span>
               ) : (
                 <>
@@ -244,7 +258,7 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
               padding: first ? '74px 26px 34px' : '24px 26px',
               color: b.color,
               borderTop: first ? 'none' : '2px solid rgba(255,253,246,.5)',
-              opacity: done ? 0.88 : 1,
+              opacity: done ? DONE_OPACITY : 1,
             }}
             onClick={() => go(SCREENS[key])}
           >
@@ -266,8 +280,8 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
               </div>
             )}
             <div style={{ font: `700 ${first ? 40 : b.size}px/1.05 'Poppins',sans-serif`, letterSpacing: '-.02em', textAlign: 'left' }}>
-              {done ? '✓ ' : ''}
-              {NAMES[key]} →
+              {NAMES[key]} {done ? '' : '→'}
+              {done && <DoneSub dark={key !== 'deep'} />}
             </div>
           </button>
         )
@@ -299,7 +313,7 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
             gap: 12,
             padding: 28,
             zIndex: 2,
-            opacity: isDone('deep') ? 0.88 : 1,
+            opacity: isDone('deep') ? DONE_OPACITY : 1,
           }}
           onClick={() => go('deep')}
         >
@@ -310,14 +324,14 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
             Work
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,253,246,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: "700 19px/1 'Poppins',sans-serif" }}>
+            <span style={{ width: 46, height: 46, borderRadius: '50%', background: isDone('deep') ? 'rgba(250,243,231,.16)' : 'rgba(255,253,246,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: "700 19px/1 'Poppins',sans-serif" }}>
               {isDone('deep') ? '✓' : '→'}
             </span>
-            <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>{isDone('deep') ? 'done' : 'step in'}</span>
+            <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>{isDone('deep') ? 'Done today.' : 'step in'}</span>
           </span>
         </button>
         <button
-          style={{ position: 'absolute', right: -34, top: '20%', width: 76, height: 132, background: 'linear-gradient(150deg,#7CA75F,#2E9B82 52%,#2F7FA0)', borderRadius: 20, transform: 'rotate(-3deg)', boxShadow: '0 12px 22px -10px rgba(46,155,130,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3, opacity: isDone('knockout') ? 0.85 : 1 }}
+          style={{ position: 'absolute', right: -34, top: '20%', width: 76, height: 132, background: 'linear-gradient(150deg,#7CA75F,#2E9B82 52%,#2F7FA0)', borderRadius: 20, transform: 'rotate(-3deg)', boxShadow: '0 12px 22px -10px rgba(46,155,130,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3, opacity: isDone('knockout') ? DONE_OPACITY : 1 }}
           onClick={() => go('knockout')}
         >
           <span style={{ font: "700 12.5px/1 'Poppins',sans-serif", letterSpacing: '.12em', color: '#FAF3E7', transform: 'rotate(90deg)', whiteSpace: 'nowrap' }}>
@@ -325,7 +339,7 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
           </span>
         </button>
         <button
-          style={{ position: 'absolute', left: -34, top: '52%', width: 76, height: 122, background: 'linear-gradient(150deg,#2F7FA0,#8FC7E0 55%,#F6C95C)', borderRadius: 20, transform: 'rotate(3deg)', boxShadow: '0 12px 22px -10px rgba(47,127,160,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3, opacity: isDone('quests') ? 0.85 : 1 }}
+          style={{ position: 'absolute', left: -34, top: '52%', width: 76, height: 122, background: 'linear-gradient(150deg,#2F7FA0,#8FC7E0 55%,#F6C95C)', borderRadius: 20, transform: 'rotate(3deg)', boxShadow: '0 12px 22px -10px rgba(47,127,160,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3, opacity: isDone('quests') ? DONE_OPACITY : 1 }}
           onClick={() => go('quests')}
         >
           <span style={{ font: "700 12.5px/1 'Poppins',sans-serif", letterSpacing: '.12em', color: '#221A12', transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>
@@ -346,13 +360,13 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
           </button>
         ) : (
           <button
-            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', zIndex: 3, opacity: isDone('impossible') ? 0.85 : 1 }}
+            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', zIndex: 3, opacity: isDone('impossible') ? DONE_OPACITY : 1 }}
             onClick={() => go('impossible')}
           >
             <span style={{ font: "600 11px/1.35 'Poppins',sans-serif", color: '#FAF3E7', textAlign: 'left' }}>
               {isDone('impossible') ? '✓ ' : ''}The Impossible
               <br />
-              Thing →
+              Thing {isDone('impossible') ? '' : '→'}
             </span>
           </button>
         )}
@@ -388,11 +402,14 @@ function GoldenHome({ doors, isDone, go }) {
             <button
               key={key}
               className="door"
-              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(6px)', transform: `rotate(${[-1, 0.8, -0.6][i]}deg)`, minHeight: 100, color: '#FAF3E7', opacity: done ? 0.8 : 1 }}
+              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(6px)', transform: `rotate(${[-1, 0.8, -0.6][i]}deg)`, minHeight: 100, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
               onClick={() => go(SCREENS[key] || 'deep')}
             >
-              <span className="door-name">{key === 'session' ? 'Focus call with Jen' : NAMES[key]}</span>
-              <span className="door-arrow" style={{ background: 'rgba(250,243,231,.18)' }}>{done ? '✓' : '→'}</span>
+              <span style={{ flex: 1 }}>
+                <span className="door-name" style={{ flex: 'none' }}>{key === 'session' ? 'Focus call with Jen' : NAMES[key]}</span>
+                {done && <DoneSub dark />}
+              </span>
+              <span className="door-arrow" style={{ background: done ? 'rgba(250,243,231,.16)' : 'rgba(250,243,231,.18)' }}>{done ? '✓' : '→'}</span>
             </button>
           )
         })}
@@ -443,11 +460,14 @@ function MoonlitHome({ doors, isDone, go }) {
                   transform: `rotate(${[-1.4, 1, -0.7][i]}deg)`,
                   boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)',
                   color: '#FAF3E7',
-                  opacity: done ? 0.8 : 1,
+                  opacity: done ? DONE_OPACITY : 1,
                 }}
                 onClick={() => go(SCREENS[key])}
               >
-                <span className="door-name">{NAMES[key]}</span>
+                <span style={{ flex: 1 }}>
+                  <span className="door-name" style={{ flex: 'none' }}>{NAMES[key]}</span>
+                  {done && <DoneSub dark />}
+                </span>
                 <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>{done ? '✓' : '→'}</span>
               </button>
             )
@@ -568,12 +588,12 @@ function StarfieldHome({ doors, isDone, go }) {
               <button
                 key={key}
                 className="door"
-                style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(4px)', transform: `rotate(${[-1, 0.8, -0.6][i]}deg)`, color: '#FAF3E7', opacity: done ? 0.8 : 1 }}
+                style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(4px)', transform: `rotate(${[-1, 0.8, -0.6][i]}deg)`, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
                 onClick={() => go(SCREENS[key])}
               >
                 <span className="door-name">
-                  {done ? '✓ ' : ''}
                   {NAMES[key]} {done ? '' : '→'}
+                  {done && <DoneSub dark />}
                 </span>
               </button>
             )
