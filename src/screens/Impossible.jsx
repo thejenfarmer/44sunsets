@@ -78,7 +78,7 @@ export default function Impossible({ onPieceDone, goHome, stack, landing }) {
       <div className="screen bg-impossible grain">
         <Head eyebrow="The Impossible Thing" headline="Here's one way to break it." sub={<span>Making it smaller <i>is</i> the work.</span>} />
         <div className="spacer col" style={{ justifyContent: 'center', gap: 10, paddingTop: 18 }}>
-          <div style={{ background: '#221A12', color: '#FAF3E7', borderRadius: 18, padding: '18px 20px', font: "700 18px/1.35 'Poppins',sans-serif", letterSpacing: '-.01em', boxShadow: '0 12px 26px -14px rgba(34,26,18,.6)' }}>
+          <div style={{ background: 'linear-gradient(150deg,#174D63,#1B3A4A)', color: '#FAF3E7', borderRadius: 18, padding: '18px 20px', font: "700 18px/1.35 'Poppins',sans-serif", letterSpacing: '-.01em', boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)' }}>
             {thing}
           </div>
           <div style={{ textAlign: 'center', font: "500 12px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.4)', padding: '2px 0' }}>⚒ breaks into ↓</div>

@@ -126,7 +126,7 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
     }
     if (key === 'impossible') {
       return (
-        <button key={key} className="door" style={{ background: '#221A12', color: '#FAF3E7', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -14px rgba(34,26,18,.6)', opacity: done ? 0.85 : 1 }} onClick={() => go('impossible')}>
+        <button key={key} className="door" style={{ background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', color: '#FAF3E7', borderRadius: 28, transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', opacity: done ? 0.85 : 1 }} onClick={() => go('impossible')}>
           <span className="door-name">{NAMES.impossible}</span>
           {done ? <DoneMark dark /> : <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>→</span>}
         </button>
@@ -204,13 +204,13 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
               key={key}
               style={{
                 flex: 0.85,
-                background: slab ? '#221A12' : 'linear-gradient(165deg,#FFFDF6 0%,#FAF3E7 100%)',
+                background: slab ? 'linear-gradient(150deg,#2F7FA0,#155A4E)' : 'linear-gradient(165deg,#FFFDF6 0%,#FAF3E7 100%)',
                 color: slab ? '#FAF3E7' : undefined,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
                 padding: first ? '74px 26px 24px' : '20px 26px 24px',
-                borderTop: first ? 'none' : slab ? '2px solid rgba(250,243,231,.15)' : '2px solid rgba(34,26,18,.1)',
+                borderTop: first ? 'none' : slab ? '2px solid rgba(143,199,224,.35)' : '2px solid rgba(34,26,18,.1)',
                 opacity: done ? 0.85 : 1,
               }}
               onClick={() => go(SCREENS[key])}
@@ -346,7 +346,7 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
           </button>
         ) : (
           <button
-            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: '#221A12', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 10px 20px -10px rgba(34,26,18,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', zIndex: 3, opacity: isDone('impossible') ? 0.85 : 1 }}
+            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: 'linear-gradient(150deg,#2F7FA0,#155A4E)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', zIndex: 3, opacity: isDone('impossible') ? 0.85 : 1 }}
             onClick={() => go('impossible')}
           >
             <span style={{ font: "600 11px/1.35 'Poppins',sans-serif", color: '#FAF3E7', textAlign: 'left' }}>
@@ -370,7 +370,7 @@ function GoldenHome({ doors, isDone, go }) {
     deep: ['rgba(255,253,246,.16)', 'rgba(255,253,246,.35)'],
     knockout: ['rgba(21,90,78,.55)', 'rgba(143,199,224,.35)'],
     quests: ['rgba(23,77,99,.6)', 'rgba(143,199,224,.3)'],
-    impossible: ['rgba(34,26,18,.55)', 'rgba(250,243,231,.25)'],
+    impossible: ['rgba(27,58,74,.6)', 'rgba(143,199,224,.3)'],
     session: ['rgba(255,253,246,.28)', 'rgba(255,253,246,.4)'],
   }
   return (
@@ -478,7 +478,7 @@ function NightRibbonsHome({ doors, isDone, scheduledCall, go }) {
           return (
             <button
               key={key}
-              style={{ flex: 0.85, background: 'linear-gradient(165deg,#1B3A4A 0%,#221A12 100%)', display: 'flex', alignItems: 'center', gap: 12, padding: first ? '74px 26px 24px' : '20px 26px 34px', borderTop: first ? 'none' : '2px solid rgba(250,243,231,.15)', opacity: done ? 0.85 : 1 }}
+              style={{ flex: 0.85, background: slab ? 'linear-gradient(150deg,#174D63,#1B3A4A)' : 'linear-gradient(165deg,#1B3A4A 0%,#221A12 100%)', display: 'flex', alignItems: 'center', gap: 12, padding: first ? '74px 26px 24px' : '20px 26px 34px', borderTop: first ? 'none' : slab ? '2px solid rgba(143,199,224,.35)' : '2px solid rgba(250,243,231,.15)', opacity: done ? 0.85 : 1 }}
               onClick={() => go(SCREENS[key])}
             >
               {slab ? (
