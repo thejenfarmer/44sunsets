@@ -30,13 +30,16 @@ export function todayKey() {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
 }
 
-// The wardrobe (canvas t14): day deals 14d (tilted doors) or 14h (ribbons);
-// night deals 14l (moonlit stack) or 14o (starfield). Golden hour is 14n.
-// A Settings preference pins one outfit for users who hate surprise.
+// The wardrobe (canvas t14): day deals 14d (tilted doors), 14f (marquee) or
+// 14h (ribbons); night deals 14l (moonlit stack), 14m (night ribbons) or
+// 14o (starfield). Golden hour is 14n. A Settings preference pins one outfit.
+const DAY_OUTFITS = ['tilted', 'marquee', 'ribbons']
+const NIGHT_OUTFITS = ['moonlit', 'nightribbons', 'starfield']
+
 export function outfitForToday(pinned) {
   if (pinned) return { day: 'tilted', night: 'moonlit' }
   const h = hashString(todayKey())
-  return { day: h % 2 ? 'ribbons' : 'tilted', night: (h >> 3) % 2 ? 'starfield' : 'moonlit' }
+  return { day: DAY_OUTFITS[h % 3], night: NIGHT_OUTFITS[(h >> 3) % 3] }
 }
 
 // morning / golden / night by clock. `?sky=` and `?outfit=` override for
@@ -52,8 +55,8 @@ export function skyModeNow() {
 
 export function outfitOverride() {
   const o = new URLSearchParams(location.search).get('outfit')
-  if (o === 'tilted' || o === 'ribbons') return { day: o }
-  if (o === 'moonlit' || o === 'starfield') return { night: o }
+  if (['tilted', 'marquee', 'ribbons'].includes(o)) return { day: o }
+  if (['moonlit', 'nightribbons', 'starfield'].includes(o)) return { night: o }
   return null
 }
 

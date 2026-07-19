@@ -48,8 +48,139 @@ function Stars() {
 
 export default function Home({ outfit, skyMode, go }) {
   if (skyMode === 'golden') return <GoldenHome go={go} />
-  if (skyMode === 'night') return outfit.night === 'starfield' ? <StarfieldHome go={go} /> : <MoonlitHome go={go} />
-  return outfit.day === 'ribbons' ? <RibbonsHome go={go} /> : <TiltedHome go={go} />
+  if (skyMode === 'night') {
+    if (outfit.night === 'starfield') return <StarfieldHome go={go} />
+    if (outfit.night === 'nightribbons') return <NightRibbonsHome go={go} />
+    return <MoonlitHome go={go} />
+  }
+  if (outfit.day === 'ribbons') return <RibbonsHome go={go} />
+  if (outfit.day === 'marquee') return <MarqueeHome go={go} />
+  return <TiltedHome go={go} />
+}
+
+// 14f — marquee: the day's headliner fills the canvas; the others peek in
+// from the edges as tabs, half off-screen, tappable but literally ajar.
+function MarqueeHome({ go }) {
+  return (
+    <div className="screen grain" style={{ background: '#FAF3E7', padding: '74px 20px 40px', gap: 16, overflow: 'hidden' }}>
+      <TopRow go={go} />
+      <div style={{ textAlign: 'center', position: 'relative', paddingTop: 2, zIndex: 4 }}>
+        <div style={{ font: "700 32px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{dateHeadline()}</div>
+        <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(34,26,18,.6)', marginTop: 6 }}>One door wide open. Three ajar.</div>
+      </div>
+      <div className="spacer" style={{ position: 'relative' }}>
+        <button
+          className="col"
+          style={{
+            position: 'absolute',
+            inset: '14px 6px 14px 6px',
+            background: 'linear-gradient(160deg,#FBE3CE 0%,#F8B9A6 55%,#F6C95C 115%)',
+            borderRadius: 34,
+            transform: 'rotate(-1deg)',
+            boxShadow: '0 24px 44px -18px rgba(244,166,155,.95)',
+            justifyContent: 'flex-end',
+            gap: 12,
+            padding: 28,
+            zIndex: 2,
+          }}
+          onClick={() => go('deep')}
+        >
+          <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'radial-gradient(circle,#F6C95C 45%,rgba(246,201,92,0) 75%)', position: 'absolute', top: 26, right: 26 }} />
+          <span style={{ font: "700 42px/1.05 'Poppins',sans-serif", letterSpacing: '-.025em' }}>
+            Deep
+            <br />
+            Work
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,253,246,.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: "700 19px/1 'Poppins',sans-serif" }}>→</span>
+            <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>step in</span>
+          </span>
+        </button>
+        <button
+          style={{ position: 'absolute', right: -34, top: '20%', width: 76, height: 132, background: 'linear-gradient(150deg,#7CA75F,#2E9B82 52%,#2F7FA0)', borderRadius: 20, transform: 'rotate(-3deg)', boxShadow: '0 12px 22px -10px rgba(46,155,130,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3 }}
+          onClick={() => go('knockout')}
+        >
+          <span style={{ font: "700 12.5px/1 'Poppins',sans-serif", letterSpacing: '.12em', color: '#FAF3E7', transform: 'rotate(90deg)', whiteSpace: 'nowrap' }}>KNOCKOUT →</span>
+        </button>
+        <button
+          style={{ position: 'absolute', left: -34, top: '52%', width: 76, height: 122, background: 'linear-gradient(150deg,#2F7FA0,#8FC7E0 55%,#F6C95C)', borderRadius: 20, transform: 'rotate(3deg)', boxShadow: '0 12px 22px -10px rgba(47,127,160,.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3 }}
+          onClick={() => go('quests')}
+        >
+          <span style={{ font: "700 12.5px/1 'Poppins',sans-serif", letterSpacing: '.12em', color: '#221A12', transform: 'rotate(-90deg)', whiteSpace: 'nowrap' }}>← SIDE QUESTS</span>
+        </button>
+        <button
+          style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.12)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 10px 20px -10px rgba(34,26,18,.4)', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', zIndex: 3 }}
+          onClick={() => go('session')}
+        >
+          <Avatar size={28} />
+          <span style={{ font: "600 12px/1.25 'Poppins',sans-serif", color: 'rgba(34,26,18,.75)', textAlign: 'left' }}>
+            Jen
+            <br />
+            <span style={{ fontWeight: 500, color: 'rgba(34,26,18,.5)' }}>2:00</span>
+          </span>
+        </button>
+      </div>
+      <button className="quiet" style={{ font: "500 13px/1 'Poppins',sans-serif", zIndex: 4 }} onClick={() => go('net')}>
+        the Net's holding a few things →
+      </button>
+    </div>
+  )
+}
+
+// 14m — night ribbons: the sky band goes near-black into deep sea blue with
+// micro stars; the bands below get the deepened sea gradients. At night the
+// scheduled human is a promise, not a prompt.
+function NightRibbonsHome({ go }) {
+  return (
+    <div className="screen grain" style={{ padding: 0, background: '#221A12', color: '#FAF3E7', overflow: 'hidden' }}>
+      <button
+        className="col"
+        style={{ flex: 1.6, background: 'linear-gradient(180deg,#221A12 0%,#174D63 70%,#2F7FA0 120%)', position: 'relative', justifyContent: 'flex-end', padding: '74px 26px 34px' }}
+        onClick={() => go('deep')}
+      >
+        <div style={{ position: 'absolute', top: 64, left: 26, right: 26, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ font: "600 12.5px/1 'Poppins',sans-serif", color: 'rgba(250,243,231,.55)' }}>{weekday()} night</div>
+          <span
+            role="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              go('settings')
+            }}
+          >
+            <Avatar size={30} />
+          </span>
+        </div>
+        <div style={{ position: 'absolute', top: 126, right: 44, width: 8, height: 8, borderRadius: '50%', background: 'rgba(250,243,231,.7)' }} />
+        <div style={{ position: 'absolute', top: 96, left: 60, width: 5, height: 5, borderRadius: '50%', background: 'rgba(250,243,231,.55)' }} />
+        <div style={{ position: 'absolute', top: 150, left: 120, width: 4, height: 4, borderRadius: '50%', background: 'rgba(250,243,231,.4)' }} />
+        <div style={{ font: "700 38px/1.05 'Poppins',sans-serif", letterSpacing: '-.025em' }}>Deep Work →</div>
+      </button>
+      <button
+        className="col"
+        style={{ flex: 1, background: 'linear-gradient(165deg,#2F7FA0 -20%,#155A4E 55%,#2E9B82 130%)', justifyContent: 'center', padding: '24px 26px', borderTop: '2px solid rgba(143,199,224,.4)' }}
+        onClick={() => go('knockout')}
+      >
+        <div style={{ font: "700 25px/1.1 'Poppins',sans-serif", letterSpacing: '-.015em' }}>Knockout Round →</div>
+      </button>
+      <button
+        className="col"
+        style={{ flex: 0.75, background: 'linear-gradient(165deg,#174D63,#2F7FA0 60%,#7CA75F 150%)', justifyContent: 'center', padding: '20px 26px', borderTop: '2px solid rgba(143,199,224,.35)' }}
+        onClick={() => go('quests')}
+      >
+        <div style={{ font: "700 19px/1.1 'Poppins',sans-serif", letterSpacing: '-.01em' }}>Side Quests →</div>
+      </button>
+      <button
+        style={{ flex: 0.85, background: 'linear-gradient(165deg,#1B3A4A 0%,#221A12 100%)', display: 'flex', alignItems: 'center', gap: 12, padding: '20px 26px 34px', borderTop: '2px solid rgba(250,243,231,.15)' }}
+        onClick={() => go('session')}
+      >
+        <Avatar size={38} />
+        <span style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, textAlign: 'left' }}>
+          <span style={{ font: "700 17px/1.15 'Poppins',sans-serif" }}>Focus call with Jen →</span>
+          <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(250,243,231,.5)' }}>tomorrow, 9:00</span>
+        </span>
+      </button>
+    </div>
+  )
 }
 
 // 14d — tilted material doors, names only, Jen's cream door, dawn wash + sun glow.

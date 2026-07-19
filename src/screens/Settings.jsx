@@ -1,69 +1,167 @@
-import React from 'react'
-import { Head } from '../components.jsx'
+import React, { useState } from 'react'
 
-// Settings (5a) — set-once-and-leave; flat, inert. Sections: Connections
-// ("Where your tasks flow in from."), Home (the layout preference from the
-// wardrobe shuffle rules), Account. No themes, no notification toggles.
+// Settings (5a) — set-once-and-leave; flat, inert. Sections: CONNECTIONS
+// ("Where your tasks flow in from.", rollout banner, per-source "What flows
+// in" chips), HOME (the layout preference that earns its slot), ACCOUNT.
+// Accent budget: green only as text/outline on row actions, off the work path.
 
-const CONNECTED = ['Slack', 'Google']
-const AVAILABLE = ['Asana', 'Sunsama', 'AI Notes']
+const GREEN = '#2E9B82'
 
-function SectionTitle({ children, sub }) {
+function Eyebrow({ children }) {
   return (
-    <div className="col" style={{ gap: 3, paddingTop: 28 }}>
-      <div className="eyebrow" style={{ color: 'rgba(34,26,18,.45)' }}>
-        {children}
-      </div>
-      {sub && <div style={{ font: "400 12.5px/1.4 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>{sub}</div>}
+    <div style={{ font: "600 11px/1 'Poppins',sans-serif", letterSpacing: '.14em', color: 'rgba(34,26,18,.45)', textTransform: 'uppercase' }}>
+      {children}
     </div>
   )
 }
 
-function Row({ left, right, onClick }) {
+function Tile({ children }) {
   return (
-    <button className="settings-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 52, width: '100%', font: "500 15px/1.3 'Poppins',sans-serif", borderBottom: '1px solid rgba(34,26,18,.08)' }} onClick={onClick}>
-      <span>{left}</span>
-      {right}
-    </button>
+    <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(34,26,18,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: "600 11px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.6)', flex: 'none' }}>
+      {children}
+    </span>
+  )
+}
+
+function FlowChips({ value, onChange }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 42, flexWrap: 'wrap' }}>
+      <span style={{ font: "400 12px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.5)' }}>What flows in:</span>
+      {['Everything', 'Flagged only'].map((opt) => {
+        const on = value === opt
+        return (
+          <button
+            key={opt}
+            style={{
+              font: "600 11.5px/1 'Poppins',sans-serif",
+              borderRadius: 999,
+              padding: '8px 13px',
+              minHeight: 30,
+              background: on ? '#221A12' : 'none',
+              color: on ? '#FAF3E7' : 'rgba(34,26,18,.55)',
+              border: on ? '1.5px solid #221A12' : '1.5px solid rgba(34,26,18,.2)',
+            }}
+            onClick={() => onChange(opt)}
+          >
+            {opt}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function ConnectedRow({ tile, name, flow, setFlow, helper }) {
+  return (
+    <div className="col" style={{ gap: 10, padding: '16px 0', borderBottom: '1px solid rgba(34,26,18,.08)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <Tile>{tile}</Tile>
+        <span className="col" style={{ gap: 2, flex: 1 }}>
+          <span style={{ font: "600 15px/1.2 'Poppins',sans-serif" }}>{name}</span>
+          <span style={{ font: "400 12px/1.3 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>connected as jane@co.com</span>
+        </span>
+        <button style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)', minHeight: 44 }}>Disconnect</button>
+      </div>
+      <FlowChips value={flow} onChange={setFlow} />
+      {helper && flow === 'Flagged only' && (
+        <div style={{ font: "400 11.5px/1.45 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)', paddingLeft: 42 }}>{helper}</div>
+      )}
+    </div>
+  )
+}
+
+function ConnectRow({ tile, name }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(34,26,18,.08)' }}>
+      <Tile>{tile}</Tile>
+      <span style={{ font: "600 15px/1.2 'Poppins',sans-serif", flex: 1 }}>{name}</span>
+      <button style={{ font: "600 12.5px/1 'Poppins',sans-serif", color: GREEN, border: `1.5px solid ${GREEN}`, borderRadius: 999, padding: '10px 18px', minHeight: 38 }}>
+        Connect
+      </button>
+    </div>
   )
 }
 
 export default function Settings({ pinnedLayout, setPinnedLayout, goHome }) {
-  const muted = { font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }
-  const ring = (on) => (
-    <span style={{ width: 22, height: 22, borderRadius: '50%', border: on ? '2px solid #221A12' : '1.5px solid rgba(34,26,18,.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-      {on && <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#221A12' }} />}
-    </span>
+  const [slackFlow, setSlackFlow] = useState('Everything')
+  const [googleFlow, setGoogleFlow] = useState('Flagged only')
+
+  const layoutCard = (on, title, sub, pick) => (
+    <button
+      className="col"
+      style={{
+        flex: 1,
+        gap: 3,
+        border: on ? '1.5px solid #221A12' : '1.5px solid rgba(34,26,18,.15)',
+        borderRadius: 14,
+        padding: '13px 14px',
+        background: '#FFFDF6',
+      }}
+      onClick={pick}
+    >
+      <span style={{ font: "600 13.5px/1.2 'Poppins',sans-serif" }}>{title}</span>
+      <span style={{ font: "400 11.5px/1.3 'Poppins',sans-serif", color: 'rgba(34,26,18,.5)' }}>{sub}</span>
+    </button>
   )
+
   return (
-    <div className="screen grain" style={{ paddingTop: 64 }}>
-      <Head eyebrow="Settings" eyebrowStyle={{ color: 'rgba(34,26,18,.45)' }} />
+    <div className="screen grain" style={{ padding: '64px 24px 40px', overflowY: 'auto' }}>
+      <div style={{ font: "700 26px/1.2 'Poppins',sans-serif", letterSpacing: '-.01em' }}>Settings</div>
 
-      <SectionTitle sub="Where your tasks flow in from.">Connections</SectionTitle>
+      <div className="col" style={{ gap: 4, paddingTop: 24 }}>
+        <Eyebrow>Connections</Eyebrow>
+        <div style={{ font: "400 12.5px/1.4 'Poppins',sans-serif", color: 'rgba(34,26,18,.5)' }}>Where your tasks flow in from.</div>
+      </div>
+      <div style={{ background: 'rgba(34,26,18,.05)', borderRadius: 12, padding: '12px 14px', font: "400 12px/1.45 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)', marginTop: 12 }}>
+        Connections are rolling out — [placeholder] for early access.
+      </div>
       <div className="col">
-        {CONNECTED.map((name) => (
-          <Row key={name} left={name} right={<span style={muted}>Connected</span>} />
-        ))}
-        {AVAILABLE.map((name) => (
-          <Row key={name} left={name} right={<span style={{ ...muted, border: '1.5px solid rgba(34,26,18,.25)', borderRadius: 999, padding: '9px 16px', color: 'rgba(34,26,18,.6)' }}>Connect</span>} />
-        ))}
+        <ConnectedRow tile="Sl" name="Slack" flow={slackFlow} setFlow={setSlackFlow} />
+        <ConnectedRow
+          tile="G"
+          name="Google"
+          flow={googleFlow}
+          setFlow={setGoogleFlow}
+          helper="Flagged only pulls in just what you've starred or prioritized in Google."
+        />
+        <ConnectRow tile="As" name="Asana" />
+        <ConnectRow tile="Su" name="Sunsama" />
+        <ConnectRow tile="AI" name="AI Notes" />
       </div>
 
-      <SectionTitle sub="How Home dresses each morning.">Home</SectionTitle>
-      <div className="col">
-        <Row left="My pick" right={ring(pinnedLayout)} onClick={() => setPinnedLayout(true)} />
-        <Row left="Fresh each morning" right={ring(!pinnedLayout)} onClick={() => setPinnedLayout(false)} />
+      <div className="col" style={{ gap: 12, paddingTop: 26 }}>
+        <Eyebrow>Home</Eyebrow>
+        <div style={{ background: '#FFFDF6', border: '1px solid rgba(34,26,18,.1)', borderRadius: 18, padding: 16 }} className="col">
+          <div style={{ font: "600 15px/1.3 'Poppins',sans-serif" }}>Home layout</div>
+          <div style={{ font: "400 12.5px/1.4 'Poppins',sans-serif", color: 'rgba(34,26,18,.5)', paddingTop: 3 }}>
+            Keep one outfit, or let Home re-deal each morning.
+          </div>
+          <div style={{ display: 'flex', gap: 10, paddingTop: 12 }}>
+            {layoutCard(pinnedLayout, 'My pick', 'Tilted doors, pinned', () => setPinnedLayout(true))}
+            {layoutCard(!pinnedLayout, 'Fresh each morning', 'The daily shuffle', () => setPinnedLayout(false))}
+          </div>
+        </div>
       </div>
 
-      <SectionTitle>Account</SectionTitle>
-      <div className="col">
-        <Row left="Founder OS — active" right={<span style={muted}>Manage</span>} />
-        <Row left="Card •••• 4242" right={<span style={muted}>Update</span>} />
-        <Row left={<span style={{ color: 'rgba(34,26,18,.5)' }}>Sign out</span>} />
+      <div className="col" style={{ gap: 4, paddingTop: 26 }}>
+        <Eyebrow>Account</Eyebrow>
+        <div className="col">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(34,26,18,.08)' }}>
+            <span className="col" style={{ gap: 2 }}>
+              <span style={{ font: "600 14.5px/1.2 'Poppins',sans-serif" }}>Founder OS — active</span>
+              <span style={{ font: "400 12px/1.3 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>software + kit + accountability</span>
+            </span>
+            <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>Manage</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(34,26,18,.08)' }}>
+            <span style={{ font: "500 14.5px/1.2 'Poppins',sans-serif" }}>Card •••• 4242</span>
+            <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>Update</span>
+          </div>
+          <div style={{ padding: '14px 0', font: "500 14px/1.2 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>Sign out</div>
+        </div>
       </div>
 
-      <div className="spacer" />
-      <button className="quiet" onClick={goHome}>
+      <button className="quiet" style={{ paddingTop: 8 }} onClick={goHome}>
         Back home →
       </button>
     </div>
