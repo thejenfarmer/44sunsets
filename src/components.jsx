@@ -1,93 +1,59 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 
-export function QuietExit({ children, onClick }) {
+export function Head({ eyebrow, headline, sub, eyebrowStyle, children }) {
   return (
-    <button className="quiet-exit" onClick={onClick}>
+    <div className="head">
+      <div className="eyebrow" style={eyebrowStyle}>
+        {eyebrow}
+      </div>
+      {headline && <div className="headline">{headline}</div>}
+      {sub && <div className="subline">{sub}</div>}
       {children}
-    </button>
-  )
-}
-
-export function Pill({ children, onClick, light }) {
-  return (
-    <button className={`pill${light ? ' pill--light' : ''}`} onClick={onClick}>
-      {children}
-    </button>
-  )
-}
-
-export function Stars({ count = 26 }) {
-  const stars = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        left: `${(i * 37 + 13) % 100}%`,
-        top: `${(i * 53 + 7) % 45}%`,
-        opacity: 0.35 + ((i * 29) % 50) / 100,
-      })),
-    [count],
-  )
-  return (
-    <div className="stars">
-      {stars.map((s, i) => (
-        <span key={i} className="star" style={s} />
-      ))}
     </div>
   )
 }
 
-export function StackColumn({ blocks, landingId }) {
-  return (
-    <div className="stack-col">
-      {blocks.map((b) => (
-        <div
-          key={b.id}
-          className={`block block--${b.material}${b.id === landingId ? ' block--landing' : ''}`}
-        >
-          {b.label}
-          <span className="block__when">{b.when}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// Shared "it landed on the Stack" room. Batches land ~350ms apart (handled by
-// the caller staggering landingIds is unnecessary for the demo — single drops).
-export function StackLanding({ message, subline, blocks, landingId, onHome, extra, exitLabel }) {
-  return (
-    <div className="screen">
-      <p className="eyebrow">The Stack</p>
-      <h1 className="headline" style={{ marginTop: 10 }}>
-        {message}
-      </h1>
-      {subline && (
-        <p className="sub" style={{ marginTop: 8 }}>
-          {subline}
-        </p>
-      )}
-      <div className="spacer" style={{ minHeight: 24 }} />
-      <StackColumn blocks={blocks.slice(-6)} landingId={landingId} />
-      {extra}
-      <div className="spacer" style={{ minHeight: 24 }} />
-      <QuietExit onClick={onHome}>{exitLabel || 'back home … →'}</QuietExit>
-    </div>
-  )
-}
-
-export function PresenceDesk({ name, oneLiner, live }) {
-  if (!live) return null
+export function Avatar({ size = 32, glow = false, style }) {
   return (
     <div
-      className="card"
-      style={{ display: 'flex', gap: 16, alignItems: 'center', padding: 16 }}
+      className={`avatar${glow ? ' avatar--glow' : ''}`}
+      style={{ width: size, height: size, font: `600 ${Math.round(size * 0.4)}px/1 'Poppins',sans-serif`, ...style }}
     >
-      <div className="presence">{name[0]}</div>
-      <div>
-        <div style={{ fontWeight: 600, fontSize: 15 }}>{name} is at her desk</div>
-        <div className="sub" style={{ fontSize: 13, marginTop: 2 }}>
-          {oneLiner}
-        </div>
+      J
+    </div>
+  )
+}
+
+// The Stack pile (landing grammar): 210px column, 20px blocks, the new block
+// mid-landing on top (~500ms settle, translateY(-14px) rotate(-2deg)).
+export function Pile({ stack, landing }) {
+  const base = (landing ? stack.filter((b) => b.id !== landing.id) : stack).slice(-4)
+  return (
+    <div className="pile">
+      {landing && <div className={`pile-block pile-block--landing mat--${landing.material}`} style={{ width: `${landing.width}%` }} />}
+      {[...base].reverse().map((b) => (
+        <div key={b.id} className={`pile-block mat--${b.material}`} style={{ width: `${b.width}%` }} />
+      ))}
+    </div>
+  )
+}
+
+// Shared Stack-landing room: eyebrow → pile at center → one headline → quiet exit.
+export function Landing({ eyebrow, eyebrowStyle, bgClass = 'bg-dawn-deep', grain = 'grain', dark, headline, stack, landing, under, exit = 'Back home →', onExit }) {
+  return (
+    <div
+      className={`screen ${bgClass} ${grain}`}
+      style={dark ? { color: '#FAF3E7', padding: '64px 20px 42px' } : { padding: '64px 20px 42px' }}
+    >
+      <Head eyebrow={eyebrow} eyebrowStyle={eyebrowStyle} />
+      <div className="spacer col" style={{ alignItems: 'center', justifyContent: 'center', gap: 34, padding: '8px 4px', textAlign: 'center' }}>
+        <Pile stack={stack} landing={landing} />
+        <div className="landing-line">{headline}</div>
+        {under}
       </div>
+      <button className={`quiet${dark ? ' quiet--cream' : ''}`} style={{ padding: '12px 0' }} onClick={onExit}>
+        {exit}
+      </button>
     </div>
   )
 }

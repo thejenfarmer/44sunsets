@@ -1,58 +1,71 @@
 import React from 'react'
-import { QuietExit } from '../components.jsx'
+import { Head } from '../components.jsx'
 
-// Settings (canvas 5a) — flat, three sections: Connections, Home, Account.
+// Settings (5a) — set-once-and-leave; flat, inert. Sections: Connections
+// ("Where your tasks flow in from."), Home (the layout preference from the
+// wardrobe shuffle rules), Account. No themes, no notification toggles.
 
-const CONNECTIONS = [
-  { name: 'Slack', state: 'Connected' },
-  { name: 'Teams', state: 'Connect' },
-  { name: 'Contacts', state: 'Connected' },
-]
+const CONNECTED = ['Slack', 'Google']
+const AVAILABLE = ['Asana', 'Sunsama', 'AI Notes']
+
+function SectionTitle({ children, sub }) {
+  return (
+    <div className="col" style={{ gap: 3, paddingTop: 28 }}>
+      <div className="eyebrow" style={{ color: 'rgba(34,26,18,.45)' }}>
+        {children}
+      </div>
+      {sub && <div style={{ font: "400 12.5px/1.4 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }}>{sub}</div>}
+    </div>
+  )
+}
+
+function Row({ left, right, onClick }) {
+  return (
+    <button className="settings-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 52, width: '100%', font: "500 15px/1.3 'Poppins',sans-serif", borderBottom: '1px solid rgba(34,26,18,.08)' }} onClick={onClick}>
+      <span>{left}</span>
+      {right}
+    </button>
+  )
+}
 
 export default function Settings({ pinnedLayout, setPinnedLayout, goHome }) {
+  const muted = { font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)' }
+  const ring = (on) => (
+    <span style={{ width: 22, height: 22, borderRadius: '50%', border: on ? '2px solid #221A12' : '1.5px solid rgba(34,26,18,.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
+      {on && <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#221A12' }} />}
+    </span>
+  )
   return (
-    <div className="screen">
-      <p className="eyebrow">Settings</p>
+    <div className="screen grain" style={{ paddingTop: 64 }}>
+      <Head eyebrow="Settings" eyebrowStyle={{ color: 'rgba(34,26,18,.45)' }} />
 
-      <h2 style={{ fontSize: 17, fontWeight: 600, marginTop: 26 }}>Connections</h2>
-      <div style={{ marginTop: 6 }}>
-        {CONNECTIONS.map((c) => (
-          <div key={c.name} className="settings-row">
-            <span>{c.name}</span>
-            <span className="hint">{c.state}</span>
-          </div>
+      <SectionTitle sub="Where your tasks flow in from.">Connections</SectionTitle>
+      <div className="col">
+        {CONNECTED.map((name) => (
+          <Row key={name} left={name} right={<span style={muted}>Connected</span>} />
+        ))}
+        {AVAILABLE.map((name) => (
+          <Row key={name} left={name} right={<span style={{ ...muted, border: '1.5px solid rgba(34,26,18,.25)', borderRadius: 999, padding: '9px 16px', color: 'rgba(34,26,18,.6)' }}>Connect</span>} />
         ))}
       </div>
 
-      <h2 style={{ fontSize: 17, fontWeight: 600, marginTop: 26 }}>Home</h2>
-      <p className="sub" style={{ fontSize: 13, marginTop: 4 }}>
-        How the day's layout is dealt.
-      </p>
-      <div style={{ marginTop: 6 }}>
-        <button className="settings-row" onClick={() => setPinnedLayout(true)}>
-          <span>My pick</span>
-          <span className={`ring${pinnedLayout ? ' ring--filled' : ''}`} />
-        </button>
-        <button className="settings-row" onClick={() => setPinnedLayout(false)}>
-          <span>Fresh each morning</span>
-          <span className={`ring${!pinnedLayout ? ' ring--filled' : ''}`} />
-        </button>
+      <SectionTitle sub="How Home dresses each morning.">Home</SectionTitle>
+      <div className="col">
+        <Row left="My pick" right={ring(pinnedLayout)} onClick={() => setPinnedLayout(true)} />
+        <Row left="Fresh each morning" right={ring(!pinnedLayout)} onClick={() => setPinnedLayout(false)} />
       </div>
 
-      <h2 style={{ fontSize: 17, fontWeight: 600, marginTop: 26 }}>Account</h2>
-      <div style={{ marginTop: 6 }}>
-        <div className="settings-row">
-          <span>Signed in as</span>
-          <span className="hint">you@founder.os</span>
-        </div>
-        <div className="settings-row">
-          <span>Sign out</span>
-          <span className="hint">→</span>
-        </div>
+      <SectionTitle>Account</SectionTitle>
+      <div className="col">
+        <Row left="Founder OS — active" right={<span style={muted}>Manage</span>} />
+        <Row left="Card •••• 4242" right={<span style={muted}>Update</span>} />
+        <Row left={<span style={{ color: 'rgba(34,26,18,.5)' }}>Sign out</span>} />
       </div>
 
       <div className="spacer" />
-      <QuietExit onClick={goHome}>back home … →</QuietExit>
+      <button className="quiet" onClick={goHome}>
+        Back home →
+      </button>
     </div>
   )
 }

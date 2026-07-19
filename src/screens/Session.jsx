@@ -1,53 +1,113 @@
 import React, { useState } from 'react'
-import { Pill, QuietExit, PresenceDesk } from '../components.jsx'
+import { Avatar, Head, Landing } from '../components.jsx'
 import { DEMO } from '../state.js'
+import { WriteIn } from './DeepFocus.jsx'
 
-// Scheduled session (canvas 15a): pre-session sit-down → live open desks
-// (Jen's presence glow + her self-written one-liner) → Stack landing (App).
+// Scheduled session (canvas 15a): ① the pre-session sit-down hand →
+// ② live open desks (Jen's glow + her self-written one-liner) →
+// ③ the Stack landing with Jen's presence line.
 
-export default function Session({ focusItem, onComplete, goHome }) {
-  const [live, setLive] = useState(false)
+export default function Session({ onDone, goHome, stack, landing }) {
+  const [phase, setPhase] = useState('hand') // hand | live | landed
+  const [item, setItem] = useState(null)
 
-  if (!live) {
+  if (phase === 'hand') {
+    const pick = (t) => {
+      setItem(t)
+      setPhase('live')
+    }
     return (
-      <div className="screen">
-        <p className="eyebrow">A sit-down</p>
-        <div className="spacer" style={{ minHeight: 30 }} />
-        <div className="card" style={{ padding: '30px 24px', textAlign: 'center' }}>
-          <div className="presence" style={{ margin: '0 auto' }}>
-            J
+      <div className="screen bg-dawn grain">
+        <Head eyebrow="Deep Focus Kickoff" headline="What are you sitting down with?">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 4 }}>
+            <Avatar size={26} />
+            <div style={{ font: "400 13.5px/1.35 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>Jen's sitting down at 2:00</div>
           </div>
-          <h1 className="headline" style={{ fontSize: 24, marginTop: 18 }}>
-            Jen is settling in.
-          </h1>
-          <p className="sub" style={{ marginTop: 8 }}>
-            Two desks, side by side. Yours is waiting.
-          </p>
+        </Head>
+        <div className="spacer col" style={{ justifyContent: 'center', gap: 12 }}>
+          {DEMO.sessionHand.map((t, i) => (
+            <button
+              key={t}
+              style={{
+                background: '#FFFDF6',
+                border: '1px solid rgba(34,26,18,.10)',
+                borderRadius: 18,
+                padding: '17px 18px',
+                font: "600 15px/1.35 'Poppins',sans-serif",
+                minHeight: 44,
+                display: 'flex',
+                alignItems: 'center',
+                boxShadow: '0 8px 18px -14px rgba(34,26,18,.35)',
+                transform: `rotate(${i % 2 ? 0.4 : -0.5}deg)`,
+              }}
+              onClick={() => pick(t)}
+            >
+              {t}
+            </button>
+          ))}
+          <WriteIn placeholder="+ something else on your mind" onSubmit={pick} style={{ textAlign: 'center' }} />
         </div>
-        <div className="spacer" />
-        <Pill onClick={() => setLive(true)}>Take your seat</Pill>
-        <QuietExit onClick={goHome}>not right now … →</QuietExit>
+        <button className="quiet" style={{ paddingTop: 16 }} onClick={goHome}>
+          Skip the rest — done for now →
+        </button>
       </div>
     )
   }
 
+  if (phase === 'landed') {
+    return (
+      <Landing
+        eyebrow="Deep Focus Kickoff"
+        headline="Things are stacking up."
+        stack={stack}
+        landing={landing}
+        under={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar size={26} />
+            <div style={{ font: "400 13.5px/1.35 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>Jen's still at her desk</div>
+          </div>
+        }
+        onExit={goHome}
+      />
+    )
+  }
+
+  // ② Live — open desks: presence, not performance.
   return (
-    <div className="screen">
-      <p className="eyebrow">Open desks</p>
-      <div className="spacer" style={{ minHeight: 30 }} />
-      <div className="card card--sunset" style={{ padding: '34px 26px' }}>
-        <p className="eyebrow" style={{ color: 'rgba(34,26,18,.5)' }}>
-          Your desk
-        </p>
-        <h1 className="headline" style={{ marginTop: 10, fontSize: 24 }}>
-          {focusItem}
-        </h1>
+    <div className="screen grain" style={{ background: '#FAF3E7', padding: '74px 28px 44px' }}>
+      <div className="col" style={{ alignItems: 'center', gap: 14, paddingTop: 8 }}>
+        <div className="eyebrow">Deep Focus Kickoff</div>
+        <Avatar size={52} glow />
+        <div className="col" style={{ gap: 4, alignItems: 'center' }}>
+          <div style={{ font: "500 14px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>Jen's here</div>
+          <div style={{ font: "400 13.5px/1.4 'Poppins',sans-serif", color: 'rgba(34,26,18,.45)', fontStyle: 'italic' }}>
+            “{DEMO.jen.oneLiner}”
+          </div>
+        </div>
       </div>
-      <div style={{ marginTop: 14 }}>
-        <PresenceDesk name={DEMO.jen.name} oneLiner={DEMO.jen.oneLiner} live />
+      <div className="spacer col" style={{ justifyContent: 'center', gap: 26, alignItems: 'center' }}>
+        <div style={{ font: "700 29px/1.3 'Poppins',sans-serif", letterSpacing: '-.01em', textAlign: 'center', maxWidth: 300 }}>{item}</div>
+        <div style={{ width: 200, height: 8, borderRadius: 999, background: 'rgba(34,26,18,.08)', overflow: 'hidden' }}>
+          <div style={{ width: '62%', height: '100%', borderRadius: 999, background: 'var(--grad-settle)' }} />
+        </div>
+        <button style={{ font: "400 13px/1.4 'Poppins',sans-serif", color: 'rgba(34,26,18,.4)', textAlign: 'center', border: '1px dashed rgba(34,26,18,.2)', borderRadius: 999, padding: '10px 18px' }}>
+          Share what you're on →
+        </button>
       </div>
-      <div className="spacer" />
-      <QuietExit onClick={onComplete}>that's enough for now … →</QuietExit>
+      <div className="col" style={{ gap: 12, alignItems: 'center' }}>
+        <button
+          className="pill"
+          onClick={() => {
+            onDone(item)
+            setPhase('landed')
+          }}
+        >
+          Mark it done
+        </button>
+        <button className="pill pill--outline" onClick={goHome}>
+          Done for now →
+        </button>
+      </div>
     </div>
   )
 }

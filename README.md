@@ -50,9 +50,16 @@ Tokens live in `src/styles.css`. The essentials, per the handoff spec:
 
 ## Demo notes
 
-- The daily "outfit" (door order + tilts) is picked deterministically from the
-  date; the sky (morning / golden hour / night) follows the clock. Settings can
+- The daily "outfit" is dealt deterministically from the date — day deals the
+  tilted doors (14d) or ribbons (14h); night deals the moonlit stack (14l) or
+  starfield (14o); golden hour is 14n. The sky follows the clock. Settings can
   pin a layout ("My pick" vs "Fresh each morning").
-- Timers are demo-accelerated: the settle bar fills in ~15s and the 20-minute
-  Knockout Round drains in ~32s.
+- Demo overrides: append `?sky=morning|golden|night` and
+  `?outfit=tilted|ribbons|moonlit|starfield` to the URL to force a look.
+- Timers are demo-accelerated: the two-minute settle bar fills in ~20s and the
+  20-minute Knockout Round drains in ~32s.
 - Sending an invite makes Jen "arrive" at her desk a few seconds later (mocked).
+- The Net and the Stack follow `MVP Documentation.md` (2f/2g) — the Desktop
+  archive with their final visuals wasn't in the design bundle. The
+  impossible-thing entrance on Home is a quiet foot line (its entrance isn't
+  specified on the canvas).

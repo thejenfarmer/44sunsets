@@ -1,6 +1,6 @@
 // Demo state helpers — all local, no backend. Jen's presence is mocked with timers.
 
-const KEY = 'adhd-founder-os-v1'
+const KEY = 'adhd-founder-os-v2'
 
 export function loadPersisted() {
   try {
@@ -15,7 +15,7 @@ export function persist(partial) {
   localStorage.setItem(KEY, JSON.stringify({ ...current, ...partial }))
 }
 
-// Deterministic outfit, seeded by date — never changes mid-day.
+// Deterministic outfit, seeded by date — dealt at first open, never mid-day.
 function hashString(s) {
   let h = 2166136261
   for (let i = 0; i < s.length; i++) {
@@ -25,89 +25,111 @@ function hashString(s) {
   return Math.abs(h)
 }
 
-// Each outfit: door order + per-door tilt. Three doors always:
-// deep (The One Thing), knockout (Knockout Round), quests (Side Quests).
-const OUTFITS = [
-  { order: ['deep', 'knockout', 'quests'], tilts: [-2, 1.5, -1] },
-  { order: ['deep', 'quests', 'knockout'], tilts: [1.5, -2, 1] },
-  { order: ['knockout', 'deep', 'quests'], tilts: [-1, 2, -1.5] },
-  { order: ['quests', 'deep', 'knockout'], tilts: [2, -1.5, 1] },
-]
-
 export function todayKey() {
   const d = new Date()
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
 }
 
-export function outfitForToday(pinnedLayout) {
-  if (pinnedLayout != null) return OUTFITS[pinnedLayout % OUTFITS.length]
-  return OUTFITS[hashString(todayKey()) % OUTFITS.length]
+// The wardrobe (canvas t14): day deals 14d (tilted doors) or 14h (ribbons);
+// night deals 14l (moonlit stack) or 14o (starfield). Golden hour is 14n.
+// A Settings preference pins one outfit for users who hate surprise.
+export function outfitForToday(pinned) {
+  if (pinned) return { day: 'tilted', night: 'moonlit' }
+  const h = hashString(todayKey())
+  return { day: h % 2 ? 'ribbons' : 'tilted', night: (h >> 3) % 2 ? 'starfield' : 'moonlit' }
 }
 
-export const PINNED_OUTFIT_INDEX = 0
-
-// morning / golden / night by clock
+// morning / golden / night by clock. `?sky=` and `?outfit=` override for
+// demos (e.g. ?sky=night&outfit=starfield).
 export function skyModeNow() {
+  const forced = new URLSearchParams(location.search).get('sky')
+  if (forced === 'morning' || forced === 'golden' || forced === 'night') return forced
   const h = new Date().getHours()
   if (h >= 6 && h < 17) return 'morning'
   if (h >= 17 && h < 20) return 'golden'
   return 'night'
 }
 
+export function outfitOverride() {
+  const o = new URLSearchParams(location.search).get('outfit')
+  if (o === 'tilted' || o === 'ribbons') return { day: o }
+  if (o === 'moonlit' || o === 'starfield') return { night: o }
+  return null
+}
+
 export function dateHeadline() {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
-}
-
-// Fraction of the waking day elapsed, for the day-shape bar marker (no digits shown).
-export function dayFraction() {
   const d = new Date()
-  const mins = d.getHours() * 60 + d.getMinutes()
-  const start = 6 * 60
-  const end = 23 * 60
-  return Math.min(1, Math.max(0, (mins - start) / (end - start)))
+  return `${d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}.`
 }
 
-// ——— Demo content (pre-filled; every write-in is an escape hatch, never a blank field) ———
+export function weekday() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long' })
+}
+
+// Seeded micro stars for the night skies (deterministic, per canvas 14o).
+export function starsForToday(count = 46) {
+  let h = hashString(todayKey() + 'stars')
+  const next = () => {
+    h = Math.imul(h ^ (h >>> 13), 1597334677) >>> 0
+    return (h >>> 8) / 16777216
+  }
+  return Array.from({ length: count }, () => ({
+    left: `${(next() * 100).toFixed(1)}%`,
+    top: `${(next() * 100).toFixed(1)}%`,
+    size: `${(1.5 + next() * 2.5).toFixed(1)}px`,
+    opacity: (0.25 + next() * 0.5).toFixed(2),
+  }))
+}
+
+// ——— Demo content (canvas copy; pre-filled, write-in is the escape hatch) ———
 
 export const DEMO = {
-  focusItem: 'Write the investor update',
-  focusAlternates: ['Draft the pricing page', 'Reply to the Stripe email'],
+  focusItem: 'Draft the fundraising narrative',
+  focusAlternates: ['Investor update — June numbers', 'Pricing page rewrite'],
 
-  impossibleThing: 'Untangle the billing migration',
-  impossibleAlternates: ['Rebuild the onboarding flow', 'File the Delaware franchise tax'],
+  impossibleThing: 'Sort out the company health insurance',
+  impossibleAlternates: ['Respond to the tax audit letter', 'Finish the Acantha site'],
+  // Largest first, smallest last — the break descends; the chain climbs back up.
   pieces: [
-    'List every table the migration touches',
-    'Export a snapshot of the current billing data',
-    'Write the mapping for plans and prices',
-    'Migrate one test customer end to end',
-    'Schedule the cutover window',
+    'Compare the three plan options',
+    "Ask Sam for last year's plan docs",
+    'Find the in-network doctor list',
+    'Log into the insurance site',
   ],
 
-  knockoutChecklist: [
-    'Reply to the accountant',
-    'Cancel the unused SaaS seat',
-    'Approve the new logo files',
-    'Book the flight for the offsite',
+  knockoutItems: [
+    { text: 'Reply to the accountant', suffix: '(easy start)', done: true },
+    { text: 'Draft one ugly paragraph of the pitch memo', hard: true, done: false },
+    { text: 'Chase the Stripe invoice', done: false },
+    { text: 'Cancel the unused SaaS seat', done: false },
   ],
 
-  sideQuests: [
-    'Update the team on the roadmap change',
-    'Clear the App Store review queue',
-    'Send Sam the intro they asked for',
-  ],
+  sideQuests: ['Sketch the onboarding flow', 'Riff on the pricing page copy', 'Storyboard the launch teaser'],
 
-  netItems: [
-    { text: 'Ask the designer about the empty-state art', when: 'last night' },
-    { text: 'That podcast idea about founder burnout', when: 'yesterday' },
-    { text: 'Look into the new EU invoicing rules', when: 'yesterday' },
-  ],
+  sessionHand: ['Draft the fundraising narrative', 'Untangle the hiring plan'],
 
-  jen: {
-    name: 'Jen',
-    oneLiner: "Rewriting the onboarding email until it doesn't sound like a robot.",
-  },
+  netItems: ['Chase the Stripe invoice', "Buy Sam's birthday gift", 'That podcast on pricing', 'Renew the domain'],
+
+  jen: { name: 'Jen', oneLiner: 'sketching the onboarding flow' },
 }
 
-export function stackBlock(label, material) {
-  return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, label, material, when: 'just now' }
+// Stack blocks: material + a stylized width so the pile reads like the canvas.
+const WIDTHS = [88, 72, 84, 78, 62, 80, 70, 86]
+
+export function seedStack() {
+  // The canvas pile, bottom-up: sunset 88 · band 72 · sunset 84 · blue→yellow 78.
+  return [
+    { id: 'seed-1', material: 'sunset', width: 88 },
+    { id: 'seed-2', material: 'band', width: 72 },
+    { id: 'seed-3', material: 'sunset', width: 84 },
+    { id: 'seed-4', material: 'bluegold', width: 78 },
+  ]
+}
+
+export function stackBlock(material, index) {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    material,
+    width: index === 4 ? 62 : WIDTHS[index % WIDTHS.length],
+  }
 }
