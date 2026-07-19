@@ -43,7 +43,7 @@ export function Landing({ eyebrow, eyebrowStyle, bgClass = 'bg-dawn-deep', grain
   return (
     <div
       className={`screen ${bgClass} ${grain}`}
-      style={dark ? { color: '#FAF3E7', padding: '64px 20px 42px' } : { padding: '64px 20px 42px' }}
+      style={dark ? { background: '#221A12', color: '#FAF3E7', padding: '64px 20px 42px' } : { padding: '64px 20px 42px' }}
     >
       <Head eyebrow={eyebrow} eyebrowStyle={eyebrowStyle} />
       <div className="spacer col" style={{ alignItems: 'center', justifyContent: 'center', gap: 34, padding: '8px 4px', textAlign: 'center' }}>
