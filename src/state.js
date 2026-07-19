@@ -1,23 +1,14 @@
-// Demo state helpers — all local, no backend. Jen's presence is mocked with timers.
+// Demo state helpers — all in memory, no backend, no persistence: a browser
+// refresh starts the demo over. Jen's presence is mocked with timers.
 
-const KEY = 'adhd-founder-os-v3'
-
-export function loadPersisted() {
+// Earlier versions persisted demo state — remove anything left behind.
+export function clearPersisted() {
   try {
-    return JSON.parse(localStorage.getItem(KEY)) || {}
+    for (const key of ['adhd-founder-os-v1', 'adhd-founder-os-v2', 'adhd-founder-os-v3']) {
+      localStorage.removeItem(key)
+    }
   } catch {
-    return {}
-  }
-}
-
-export function persist(partial) {
-  // Storage can be unavailable (private mode, embedded webviews) — the demo
-  // must keep working without it.
-  try {
-    const current = loadPersisted()
-    localStorage.setItem(KEY, JSON.stringify({ ...current, ...partial }))
-  } catch {
-    /* non-persistent session */
+    /* storage unavailable — nothing to clear */
   }
 }
 
@@ -76,8 +67,8 @@ export function callOverride() {
   return new URLSearchParams(location.search).get('call') // 'none' forces the slab, 'on' forces Jen's card
 }
 
-// The 2:00 call is on the books until the session is done (or ?call=none).
-// The Impossible Thing is always dealt — Home holds up to five cards.
+// Home always deals FIVE cards — the 2:00 call and The Impossible Thing both
+// appear; completing the session marks Jen's card done rather than removing it.
 export function scheduledCallDefault() {
   return { time: '2:00' }
 }

@@ -54,16 +54,17 @@ Tokens live in `src/styles.css`. The essentials, per the handoff spec:
   tilted doors (14d) or ribbons (14h); night deals the moonlit stack (14l) or
   starfield (14o); golden hour is 14n. The sky follows the clock. Settings can
   pin a layout ("My pick" vs "Fresh each morning").
-- Home deals up to FIVE cards: the three doors, Jen's Scheduled session card
-  while the 2:00 call is upcoming (it leaves once the session is done), and
-  The Impossible Thing (sea-blue slab) always at the back. Completed doors
-  come forward wearing a ✓ done state; the day-shape bar sits under the
-  headline.
-- Demo content (side quests, the Net, the call, completed doors) re-deals
-  every morning; the Stack accumulates across days by design.
+- Home always deals FIVE cards: Deep Work, Knockout Round, Side Quests,
+  The Impossible Thing (sea-blue slab), and the Focus call with Jen — each in
+  its own material, tilted-stack styling. Completed cards come forward
+  wearing a ✓ done state (Jen's card completes-forward too, it never swaps
+  out); the day-shape bar sits under the headline.
+- No persistence: all demo state lives in memory, so a refresh restarts the
+  demo with all five cards fresh. Any state persisted by earlier builds is
+  removed on load.
 - Demo overrides: append `?sky=morning|golden|night`,
-  `?outfit=tilted|marquee|ribbons|moonlit|nightribbons|starfield`, and
-  `?call=none|on` (forces the slab / Jen's card) to the URL.
+  `?outfit=tilted|marquee|ribbons|moonlit|nightribbons|starfield`, or
+  `?call=none` (hides Jen's card) to the URL.
 - Timers are demo-accelerated: the two-minute settle bar fills in ~20s and the
   20-minute Knockout Round drains in ~32s.
 - Sending an invite makes Jen "arrive" at her desk a few seconds later (mocked).

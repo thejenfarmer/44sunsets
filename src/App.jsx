@@ -8,45 +8,29 @@ import Session from './screens/Session.jsx'
 import Settings from './screens/Settings.jsx'
 import InviteSheet from './screens/InviteSheet.jsx'
 import { Net, Stack } from './screens/NetStack.jsx'
-import { DEMO, callOverride, loadPersisted, outfitForToday, outfitOverride, persist, scheduledCallDefault, seedStack, skyModeNow, stackBlock, todayKey } from './state.js'
+import { DEMO, callOverride, clearPersisted, outfitForToday, outfitOverride, scheduledCallDefault, seedStack, skyModeNow, stackBlock } from './state.js'
+
+// The demo lives entirely in memory — a refresh deals the day fresh.
+clearPersisted()
 
 export default function App() {
-  const saved = useRef(loadPersisted()).current
-  // Day-scoped demo state: quests, the Net, the call, and completed doors
-  // re-deal each morning. The Stack accumulates across days by design.
-  const day = saved.demoDay === todayKey() ? saved : {}
-  const save = (partial) => persist({ ...partial, demoDay: todayKey() })
-
   const [screen, setScreen] = useState('home')
-  const [stack, setStack] = useState(saved.stack || seedStack())
-  const [netItems, setNetItemsState] = useState(day.netItems || DEMO.netItems)
-  const [quests, setQuests] = useState(day.quests || DEMO.sideQuests)
-  const [selectedQuest, setSelectedQuest] = useState((day.quests || DEMO.sideQuests)[0] || null)
-  const [pinnedLayout, setPinnedLayoutState] = useState(saved.pinnedLayout ?? false)
+  const [stack, setStack] = useState(seedStack)
+  const [netItems, setNetItems] = useState(DEMO.netItems)
+  const [quests, setQuests] = useState(DEMO.sideQuests)
+  const [selectedQuest, setSelectedQuest] = useState(DEMO.sideQuests[0])
+  const [pinnedLayout, setPinnedLayout] = useState(false)
   const [focusItem, setFocusItem] = useState(DEMO.focusItem)
   const [landing, setLanding] = useState(null)
 
-  // Home's 4th door: the Scheduled session while the 2:00 call is upcoming,
-  // The Impossible Thing once it's past (or done). ?call=none|on overrides.
-  const [scheduledCall, setScheduledCallState] = useState(() => {
-    const ov = callOverride()
-    if (ov === 'none') return null
-    if (ov === 'on') return { time: '2:00' }
-    return day.scheduledCallDone ? null : scheduledCallDefault()
-  })
-  const setScheduledCall = (call) => {
-    setScheduledCallState(call)
-    save({ scheduledCallDone: call === null })
-  }
+  // Five cards, always: the 2:00 call never swaps a card out. ?call=none
+  // hides Jen's card for demos only.
+  const scheduledCall = callOverride() === 'none' ? null : scheduledCallDefault()
 
-  // Completed doors come forward on Home wearing their done state; resets daily.
-  const [completedDoors, setCompletedDoors] = useState(day.completedDoors || [])
+  // Completed doors come forward on Home wearing their done state.
+  const [completedDoors, setCompletedDoors] = useState([])
   const markDoor = (door) => {
-    setCompletedDoors((prev) => {
-      const next = [door, ...prev.filter((d) => d !== door)]
-      save({ completedDoors: next })
-      return next
-    })
+    setCompletedDoors((prev) => [door, ...prev.filter((d) => d !== door)])
   }
 
   // Invite + mocked presence: Jen accepts and sits down a few moments later.
@@ -64,22 +48,10 @@ export default function App() {
 
   const go = (s) => setScreen(s)
 
-  const setPinnedLayout = (pin) => {
-    setPinnedLayoutState(pin)
-    persist({ pinnedLayout: pin })
-  }
-
-  const setNetItems = (items) => {
-    setNetItemsState(items)
-    save({ netItems: items })
-  }
-
   // A completion drops a material block onto the Stack (~500ms settle).
   const land = (material) => {
     const block = stackBlock(material, stack.length)
-    const nextStack = [...stack, block]
-    setStack(nextStack)
-    persist({ stack: nextStack })
+    setStack([...stack, block])
     setLanding(block)
   }
 
@@ -102,7 +74,6 @@ export default function App() {
   const questDone = (quest) => {
     const remaining = quests.filter((q) => q !== quest)
     setQuests(remaining)
-    save({ quests: remaining })
     setSelectedQuest(remaining[0] || null)
     land('bluegold')
     if (remaining.length === 0) markDoor('quests')
@@ -167,7 +138,7 @@ export default function App() {
       <Session
         onDone={() => {
           land('sunset')
-          setScheduledCall(null) // the call is done — the slab takes the 4th slot
+          markDoor('session')
         }}
         goHome={goHome}
         stack={stack}

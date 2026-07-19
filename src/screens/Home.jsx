@@ -24,10 +24,10 @@ const NAMES = { deep: 'Deep Work', knockout: 'Knockout Round', quests: 'Side Que
 const SCREENS = { deep: 'deep', knockout: 'knockout', quests: 'quests', impossible: 'impossible', session: 'session' }
 const TILTS = [-1.2, 0.9, -0.7, 0.8, -0.9]
 
-// Up to five cards: the three doors, Jen's card while the call is upcoming,
-// and The Impossible Thing at the back. Completed doors come forward.
+// FIVE cards, always: Deep Work, Knockout Round, Side Quests, The Impossible
+// Thing, and the Focus call with Jen. Completed doors come forward.
 function orderedDoors(completedDoors, scheduledCall) {
-  const defaults = ['deep', 'knockout', 'quests', ...(scheduledCall ? ['session'] : []), 'impossible']
+  const defaults = ['deep', 'knockout', 'quests', 'impossible', ...(scheduledCall ? ['session'] : [])]
   const done = completedDoors.filter((d) => defaults.includes(d))
   return [...done, ...defaults.filter((d) => !done.includes(d))]
 }
@@ -123,13 +123,13 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
     const done = isDone(key)
     if (key === 'session') {
       return (
-        <button key={key} className="door" style={{ minHeight, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.1)', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -16px rgba(34,26,18,.35)' }} onClick={() => go('session')}>
+        <button key={key} className="door" style={{ minHeight, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.1)', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -16px rgba(34,26,18,.35)', opacity: done ? DONE_OPACITY : 1 }} onClick={() => go('session')}>
           <Avatar size={44} />
           <span style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
             <span style={{ font: "700 18px/1.2 'Poppins',sans-serif", letterSpacing: '-.01em' }}>Focus call with Jen</span>
-            <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>{scheduledCall.time}</span>
+            <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>{done ? 'Done today.' : scheduledCall.time}</span>
           </span>
-          <span className="door-arrow" style={{ background: 'rgba(34,26,18,.07)', color: 'rgba(34,26,18,.6)' }}>→</span>
+          {done ? <DoneMark /> : <span className="door-arrow" style={{ background: 'rgba(34,26,18,.07)', color: 'rgba(34,26,18,.6)' }}>→</span>}
         </button>
       )
     }
@@ -240,8 +240,8 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
                 <>
                   <Avatar size={38} />
                   <span style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, textAlign: 'left' }}>
-                    <span style={{ font: "700 17px/1.15 'Poppins',sans-serif" }}>Focus call with Jen →</span>
-                    <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.5)' }}>{scheduledCall.time}</span>
+                    <span style={{ font: "700 17px/1.15 'Poppins',sans-serif" }}>Focus call with Jen {done ? '' : '→'}</span>
+                    <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.5)' }}>{done ? 'Done today.' : scheduledCall.time}</span>
                   </span>
                 </>
               )}
@@ -351,14 +351,14 @@ function MarqueeHome({ isDone, scheduledCall, go }) {
         </button>
         {scheduledCall && (
           <button
-            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.12)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 10px 20px -10px rgba(34,26,18,.4)', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', zIndex: 3 }}
+            style={{ position: 'absolute', right: -24, bottom: '6%', width: 112, height: 64, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.12)', borderRadius: 18, transform: 'rotate(-2deg)', boxShadow: '0 10px 20px -10px rgba(34,26,18,.4)', display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', zIndex: 3, opacity: isDone('session') ? DONE_OPACITY : 1 }}
             onClick={() => go('session')}
           >
             <Avatar size={28} />
             <span style={{ font: "600 12px/1.25 'Poppins',sans-serif", color: 'rgba(34,26,18,.75)', textAlign: 'left' }}>
-              Jen
+              {isDone('session') ? '✓ ' : ''}Jen
               <br />
-              <span style={{ fontWeight: 500, color: 'rgba(34,26,18,.5)' }}>{scheduledCall.time}</span>
+              <span style={{ fontWeight: 500, color: 'rgba(34,26,18,.5)' }}>{isDone('session') ? 'Done today.' : scheduledCall.time}</span>
             </span>
           </button>
         )}
@@ -511,8 +511,8 @@ function NightRibbonsHome({ doors, isDone, scheduledCall, go }) {
                 <>
                   <Avatar size={38} />
                   <span style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, textAlign: 'left' }}>
-                    <span style={{ font: "700 17px/1.15 'Poppins',sans-serif" }}>Focus call with Jen →</span>
-                    <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(250,243,231,.5)' }}>tomorrow, 9:00</span>
+                    <span style={{ font: "700 17px/1.15 'Poppins',sans-serif" }}>Focus call with Jen {done ? '' : '→'}</span>
+                    <span style={{ font: "500 12.5px/1 'Poppins',sans-serif", color: 'rgba(250,243,231,.5)' }}>{done ? 'Done today.' : 'tomorrow, 9:00'}</span>
                   </span>
                 </>
               )}
