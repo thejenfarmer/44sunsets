@@ -11,8 +11,14 @@ export function loadPersisted() {
 }
 
 export function persist(partial) {
-  const current = loadPersisted()
-  localStorage.setItem(KEY, JSON.stringify({ ...current, ...partial }))
+  // Storage can be unavailable (private mode, embedded webviews) — the demo
+  // must keep working without it.
+  try {
+    const current = loadPersisted()
+    localStorage.setItem(KEY, JSON.stringify({ ...current, ...partial }))
+  } catch {
+    /* non-persistent session */
+  }
 }
 
 // Deterministic outfit, seeded by date — dealt at first open, never mid-day.
