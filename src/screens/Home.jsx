@@ -389,6 +389,7 @@ function GoldenHome({ doors, isDone, go }) {
     impossible: ['rgba(27,58,74,.6)', 'rgba(143,199,224,.3)'],
     session: ['rgba(255,253,246,.28)', 'rgba(255,253,246,.4)'],
   }
+  const minHeight = doors.length > 4 ? 84 : 100
   return (
     <div className="screen" style={{ background: 'linear-gradient(180deg,#F4A69B 0%,#F6C95C 18%,#2F7FA0 52%,#174D63 100%)', color: '#FAF3E7', padding: '74px 20px 40px', gap: 18, overflow: 'hidden' }}>
       <TopRow go={go} />
@@ -396,15 +397,15 @@ function GoldenHome({ doors, isDone, go }) {
         <div style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em', color: '#221A12' }}>{weekday()}, golden hour.</div>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(34,26,18,.65)', marginTop: 6 }}>One more good thing before dark.</div>
       </div>
-      <div className="spacer col" style={{ justifyContent: 'flex-end', gap: 13, paddingTop: 60 }}>
-        {doors.slice(0, 3).map((key, i) => {
+      <div className="spacer col" style={{ justifyContent: 'flex-end', gap: 12, paddingTop: 24 }}>
+        {doors.map((key, i) => {
           const [bg, border] = GLASS[key] || GLASS.deep
           const done = isDone(key)
           return (
             <button
               key={key}
               className="door"
-              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(6px)', transform: `rotate(${[-1, 0.8, -0.6][i]}deg)`, minHeight: 100, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
+              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(6px)', transform: `rotate(${[-1, 0.8, -0.6, 0.7, -0.5][i % 5]}deg)`, minHeight, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
               onClick={() => go(SCREENS[key] || 'deep')}
             >
               <span style={{ flex: 1 }}>
@@ -446,34 +447,40 @@ function MoonlitHome({ doors, isDone, go }) {
         <div style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{weekday()} night.</div>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(250,243,231,.6)', marginTop: 6 }}>The ocean's still up if you are.</div>
       </div>
-      <div className="spacer col" style={{ justifyContent: 'center', gap: 14, position: 'relative' }}>
-        {doors
-          .filter((d) => NIGHT_GRADS[d])
-          .map((key, i) => {
-            const done = isDone(key)
-            return (
-              <button
-                key={key}
-                className="door"
-                style={{
-                  background: NIGHT_GRADS[key],
-                  borderRadius: 28,
-                  minHeight: 112,
-                  transform: `rotate(${[-1.4, 1, -0.7][i]}deg)`,
-                  boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)',
-                  color: '#FAF3E7',
-                  opacity: done ? DONE_OPACITY : 1,
-                }}
-                onClick={() => go(SCREENS[key])}
-              >
-                <span style={{ flex: 1 }}>
-                  <span className="door-name" style={{ flex: 'none' }}>{NAMES[key]}</span>
-                  {done && <DoneSub dark />}
-                </span>
-                <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>{done ? '✓' : '→'}</span>
-              </button>
-            )
-          })}
+      <div className="spacer col" style={{ justifyContent: 'center', gap: 12, position: 'relative' }}>
+        {doors.map((key, i) => {
+          const done = isDone(key)
+          const sea = {
+            ...NIGHT_GRADS,
+            impossible: 'linear-gradient(150deg,#174D63,#1B3A4A)',
+            session: 'rgba(250,243,231,.12)',
+          }
+          const isSession = key === 'session'
+          return (
+            <button
+              key={key}
+              className="door"
+              style={{
+                background: sea[key],
+                border: isSession ? '1px solid rgba(250,243,231,.3)' : 'none',
+                borderRadius: 28,
+                minHeight: doors.length > 4 ? 88 : 112,
+                transform: `rotate(${[-1.4, 1, -0.7, 0.9, -0.8][i % 5]}deg)`,
+                boxShadow: isSession ? 'none' : '0 14px 30px -12px rgba(23,77,99,.9)',
+                color: '#FAF3E7',
+                opacity: done ? DONE_OPACITY : 1,
+              }}
+              onClick={() => go(SCREENS[key])}
+            >
+              {isSession && <Avatar size={38} />}
+              <span style={{ flex: 1 }}>
+                <span className="door-name" style={{ flex: 'none' }}>{isSession ? 'Focus call with Jen' : NAMES[key]}</span>
+                {done && <DoneSub dark />}
+              </span>
+              <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>{done ? '✓' : '→'}</span>
+            </button>
+          )
+        })}
       </div>
       <button className="quiet" style={{ color: 'rgba(250,243,231,.5)', font: "500 13px/1 'Poppins',sans-serif" }} onClick={() => go('stack')}>
         close the day →
@@ -571,6 +578,8 @@ function StarfieldHome({ doors, isDone, go }) {
     deep: ['rgba(47,127,160,.22)', 'rgba(143,199,224,.35)'],
     knockout: ['rgba(21,90,78,.3)', 'rgba(124,167,95,.4)'],
     quests: ['rgba(23,77,99,.3)', 'rgba(143,199,224,.3)'],
+    impossible: ['rgba(27,58,74,.45)', 'rgba(143,199,224,.3)'],
+    session: ['rgba(250,243,231,.1)', 'rgba(250,243,231,.3)'],
   }
   return (
     <div className="screen" style={{ background: 'linear-gradient(180deg,#221A12 0%,#174D63 62%,#1B3A4A 100%)', color: '#FAF3E7', padding: '74px 20px 40px', gap: 18, overflow: 'hidden' }}>
@@ -580,26 +589,24 @@ function StarfieldHome({ doors, isDone, go }) {
         <div style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{weekday()} night.</div>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(250,243,231,.6)', marginTop: 6 }}>Clear skies. Everything can wait.</div>
       </div>
-      <div className="spacer col" style={{ justifyContent: 'center', gap: 13, position: 'relative', zIndex: 2 }}>
-        {doors
-          .filter((d) => GLASS[d])
-          .map((key, i) => {
-            const [bg, border] = GLASS[key]
-            const done = isDone(key)
-            return (
-              <button
-                key={key}
-                className="door"
-                style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(4px)', transform: `rotate(${[-1, 0.8, -0.6][i]}deg)`, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
-                onClick={() => go(SCREENS[key])}
-              >
-                <span className="door-name">
-                  {NAMES[key]} {done ? '' : '→'}
-                  {done && <DoneSub dark />}
-                </span>
-              </button>
-            )
-          })}
+      <div className="spacer col" style={{ justifyContent: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
+        {doors.map((key, i) => {
+          const [bg, border] = GLASS[key]
+          const done = isDone(key)
+          return (
+            <button
+              key={key}
+              className="door"
+              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(4px)', transform: `rotate(${[-1, 0.8, -0.6, 0.7, -0.5][i % 5]}deg)`, minHeight: doors.length > 4 ? 84 : 104, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
+              onClick={() => go(SCREENS[key])}
+            >
+              <span className="door-name">
+                {key === 'session' ? 'Focus call with Jen' : NAMES[key]} {done ? '' : '→'}
+                {done && <DoneSub dark />}
+              </span>
+            </button>
+          )
+        })}
       </div>
       <button className="quiet" style={{ color: 'rgba(250,243,231,.5)', font: "500 13px/1 'Poppins',sans-serif", zIndex: 2 }} onClick={() => go('stack')}>
         close the day →
