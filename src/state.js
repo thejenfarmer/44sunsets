@@ -59,6 +59,23 @@ export function skyModeNow() {
   return 'night'
 }
 
+// The day-shape bar (Design System §5): the waking day as pill segments —
+// spent lie flat and muted, the active one is soft peach, remaining stand
+// tall in outlined cream. No now-marker, no digits.
+export function daySegments() {
+  const now = new Date().getHours()
+  const START = 6
+  const END = 22
+  return Array.from({ length: END - START }, (_, i) => {
+    const hour = START + i
+    return hour < now ? 'spent' : hour === now ? 'active' : 'ahead'
+  })
+}
+
+export function callOverride() {
+  return new URLSearchParams(location.search).get('call') // 'none' forces the slab door
+}
+
 export function outfitOverride() {
   const o = new URLSearchParams(location.search).get('outfit')
   if (['tilted', 'marquee', 'ribbons'].includes(o)) return { day: o }

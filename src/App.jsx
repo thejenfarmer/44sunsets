@@ -8,7 +8,7 @@ import Session from './screens/Session.jsx'
 import Settings from './screens/Settings.jsx'
 import InviteSheet from './screens/InviteSheet.jsx'
 import { Net, Stack } from './screens/NetStack.jsx'
-import { DEMO, loadPersisted, outfitForToday, outfitOverride, persist, seedStack, skyModeNow, stackBlock } from './state.js'
+import { DEMO, callOverride, loadPersisted, outfitForToday, outfitOverride, persist, seedStack, skyModeNow, stackBlock, todayKey } from './state.js'
 
 export default function App() {
   const saved = useRef(loadPersisted()).current
@@ -21,6 +21,28 @@ export default function App() {
   const [pinnedLayout, setPinnedLayoutState] = useState(saved.pinnedLayout ?? false)
   const [focusItem, setFocusItem] = useState(DEMO.focusItem)
   const [landing, setLanding] = useState(null)
+
+  // Home's 4th door: the Scheduled session while a call is on the books,
+  // The Impossible Thing once it isn't. `?call=none` forces the slab for demos.
+  const [scheduledCall, setScheduledCallState] = useState(
+    callOverride() === 'none' ? null : saved.scheduledCall !== undefined ? saved.scheduledCall : { time: '2:00' },
+  )
+  const setScheduledCall = (call) => {
+    setScheduledCallState(call)
+    persist({ scheduledCall: call })
+  }
+
+  // Completed doors come forward on Home wearing their done state; resets daily.
+  const [completedDoors, setCompletedDoors] = useState(
+    saved.completed && saved.completed.date === todayKey() ? saved.completed.doors : [],
+  )
+  const markDoor = (door) => {
+    setCompletedDoors((prev) => {
+      const next = [door, ...prev.filter((d) => d !== door)]
+      persist({ completed: { date: todayKey(), doors: next } })
+      return next
+    })
+  }
 
   // Invite + mocked presence: Jen accepts and sits down a few moments later.
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -78,6 +100,7 @@ export default function App() {
     persist({ quests: remaining })
     setSelectedQuest(remaining[0] || null)
     land('bluegold')
+    if (remaining.length === 0) markDoor('quests')
   }
 
   let body
@@ -89,15 +112,39 @@ export default function App() {
         presence={presence}
         openInvite={openInvite}
         goHome={goHome}
-        onDone={() => land('sunset')}
+        onDone={() => {
+          land('sunset')
+          markDoor('deep')
+        }}
         stack={stack}
         landing={landing}
       />
     )
   } else if (screen === 'impossible') {
-    body = <Impossible onPieceDone={() => land('slab')} goHome={goHome} stack={stack} landing={landing} />
+    body = (
+      <Impossible
+        onPieceDone={() => {
+          land('slab')
+          markDoor('impossible')
+        }}
+        goHome={goHome}
+        stack={stack}
+        landing={landing}
+      />
+    )
   } else if (screen === 'knockout') {
-    body = <Knockout onWin={() => land('band')} goHome={goHome} openInvite={openInvite} stack={stack} landing={landing} />
+    body = (
+      <Knockout
+        onWin={() => {
+          land('band')
+          markDoor('knockout')
+        }}
+        goHome={goHome}
+        openInvite={openInvite}
+        stack={stack}
+        landing={landing}
+      />
+    )
   } else if (screen === 'quests') {
     body = (
       <SideQuests
@@ -111,7 +158,17 @@ export default function App() {
       />
     )
   } else if (screen === 'session') {
-    body = <Session onDone={() => land('sunset')} goHome={goHome} stack={stack} landing={landing} />
+    body = (
+      <Session
+        onDone={() => {
+          land('sunset')
+          setScheduledCall(null) // the call is done — the slab takes the 4th slot
+        }}
+        goHome={goHome}
+        stack={stack}
+        landing={landing}
+      />
+    )
   } else if (screen === 'settings') {
     body = <Settings pinnedLayout={pinnedLayout} setPinnedLayout={setPinnedLayout} goHome={goHome} />
   } else if (screen === 'net') {
@@ -119,7 +176,7 @@ export default function App() {
   } else if (screen === 'stack') {
     body = <Stack stack={stack} night={skyMode === 'night'} goHome={goHome} />
   } else {
-    body = <Home outfit={outfit} skyMode={skyMode} go={go} />
+    body = <Home outfit={outfit} skyMode={skyMode} scheduledCall={scheduledCall} completedDoors={completedDoors} go={go} />
   }
 
   return (
