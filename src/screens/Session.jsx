@@ -10,6 +10,7 @@ import { WriteIn } from './DeepFocus.jsx'
 export default function Session({ onDone, goHome, stack, landing }) {
   const [phase, setPhase] = useState('hand') // hand | live | landed
   const [item, setItem] = useState(null)
+  const [written, setWritten] = useState(null)
 
   if (phase === 'hand') {
     const pick = (t) => {
@@ -45,7 +46,24 @@ export default function Session({ onDone, goHome, stack, landing }) {
               {t}
             </button>
           ))}
-          <WriteIn placeholder="+ something else on your mind" onSubmit={pick} style={{ textAlign: 'center' }} />
+          {written ? (
+            // A written-in item gets the two feeling chips inline, then routes in.
+            <div style={{ background: '#FFFDF6', border: '1.5px solid rgba(34,26,18,.3)', borderRadius: 18, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ font: "600 15px/1.35 'Poppins',sans-serif" }}>{written}</div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <button className="chip" onClick={() => pick(written)}>
+                  <span className="chip-dot" style={{ background: '#221A12' }} />
+                  Pulls me
+                </button>
+                <button className="chip" onClick={() => pick(written)}>
+                  <span className="chip-dot" style={{ background: 'linear-gradient(105deg,#7CA75F,#2E9B82,#2F7FA0)' }} />
+                  Dreading it
+                </button>
+              </div>
+            </div>
+          ) : (
+            <WriteIn placeholder="+ something else on your mind" onSubmit={setWritten} style={{ textAlign: 'center' }} />
+          )}
         </div>
         <button className="quiet" style={{ paddingTop: 16 }} onClick={goHome}>
           Skip the rest — done for now →

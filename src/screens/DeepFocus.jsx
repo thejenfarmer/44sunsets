@@ -8,8 +8,18 @@ import { DEMO } from '../state.js'
 
 const SETTLE_SECONDS = 20 // demo-accelerated stand-in for the two minutes
 
+// The write-in escape hatch: a dashed tile whose field opens only after the
+// tap — no blank compose box ever leads.
 export function WriteIn({ placeholder, onSubmit, style }) {
+  const [open, setOpen] = useState(false)
   const [value, setValue] = useState('')
+  if (!open) {
+    return (
+      <button className="writein" style={style} onClick={() => setOpen(true)}>
+        {placeholder}
+      </button>
+    )
+  }
   return (
     <form
       onSubmit={(e) => {
@@ -18,7 +28,7 @@ export function WriteIn({ placeholder, onSubmit, style }) {
       }}
       style={style}
     >
-      <input className="writein" value={value} placeholder={placeholder} onChange={(e) => setValue(e.target.value)} />
+      <input className="writein" autoFocus value={value} placeholder={placeholder} onChange={(e) => setValue(e.target.value)} />
     </form>
   )
 }
