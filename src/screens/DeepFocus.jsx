@@ -91,7 +91,7 @@ export default function DeepFocus({ focusItem, setFocusItem, presence, openInvit
           <WriteIn placeholder="Or type it — one line is enough…" onSubmit={pick} />
         </div>
         <button className="quiet" style={{ fontSize: 14 }} onClick={() => setStep('focus')}>
-          ← back to it
+          {focusItem === DEMO.focusItem ? '← back to the narrative' : '← back to it'}
         </button>
       </div>
     )

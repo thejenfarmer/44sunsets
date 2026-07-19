@@ -64,7 +64,7 @@ export default function Impossible({ onPieceDone, goHome, stack, landing }) {
           <WriteIn placeholder="Write in what's on your mind." onSubmit={pick} />
         </div>
         <button className="quiet" style={{ fontSize: 14 }} onClick={() => setStep('pick')}>
-          ← back to it
+          {thing === DEMO.impossibleThing ? '← back to the insurance' : '← back to it'}
         </button>
       </div>
     )
