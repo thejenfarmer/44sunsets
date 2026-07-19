@@ -8,38 +8,43 @@ import Session from './screens/Session.jsx'
 import Settings from './screens/Settings.jsx'
 import InviteSheet from './screens/InviteSheet.jsx'
 import { Net, Stack } from './screens/NetStack.jsx'
-import { DEMO, callOverride, loadPersisted, outfitForToday, outfitOverride, persist, seedStack, skyModeNow, stackBlock, todayKey } from './state.js'
+import { DEMO, callOverride, loadPersisted, outfitForToday, outfitOverride, persist, scheduledCallDefault, seedStack, skyModeNow, stackBlock, todayKey } from './state.js'
 
 export default function App() {
   const saved = useRef(loadPersisted()).current
+  // Day-scoped demo state: quests, the Net, the call, and completed doors
+  // re-deal each morning. The Stack accumulates across days by design.
+  const day = saved.demoDay === todayKey() ? saved : {}
+  const save = (partial) => persist({ ...partial, demoDay: todayKey() })
 
   const [screen, setScreen] = useState('home')
   const [stack, setStack] = useState(saved.stack || seedStack())
-  const [netItems, setNetItemsState] = useState(saved.netItems || DEMO.netItems)
-  const [quests, setQuests] = useState(saved.quests || DEMO.sideQuests)
-  const [selectedQuest, setSelectedQuest] = useState((saved.quests || DEMO.sideQuests)[0] || null)
+  const [netItems, setNetItemsState] = useState(day.netItems || DEMO.netItems)
+  const [quests, setQuests] = useState(day.quests || DEMO.sideQuests)
+  const [selectedQuest, setSelectedQuest] = useState((day.quests || DEMO.sideQuests)[0] || null)
   const [pinnedLayout, setPinnedLayoutState] = useState(saved.pinnedLayout ?? false)
   const [focusItem, setFocusItem] = useState(DEMO.focusItem)
   const [landing, setLanding] = useState(null)
 
-  // Home's 4th door: the Scheduled session while a call is on the books,
-  // The Impossible Thing once it isn't. `?call=none` forces the slab for demos.
-  const [scheduledCall, setScheduledCallState] = useState(
-    callOverride() === 'none' ? null : saved.scheduledCall !== undefined ? saved.scheduledCall : { time: '2:00' },
-  )
+  // Home's 4th door: the Scheduled session while the 2:00 call is upcoming,
+  // The Impossible Thing once it's past (or done). ?call=none|on overrides.
+  const [scheduledCall, setScheduledCallState] = useState(() => {
+    const ov = callOverride()
+    if (ov === 'none') return null
+    if (ov === 'on') return { time: '2:00' }
+    return day.scheduledCallDone ? null : scheduledCallDefault()
+  })
   const setScheduledCall = (call) => {
     setScheduledCallState(call)
-    persist({ scheduledCall: call })
+    save({ scheduledCallDone: call === null })
   }
 
   // Completed doors come forward on Home wearing their done state; resets daily.
-  const [completedDoors, setCompletedDoors] = useState(
-    saved.completed && saved.completed.date === todayKey() ? saved.completed.doors : [],
-  )
+  const [completedDoors, setCompletedDoors] = useState(day.completedDoors || [])
   const markDoor = (door) => {
     setCompletedDoors((prev) => {
       const next = [door, ...prev.filter((d) => d !== door)]
-      persist({ completed: { date: todayKey(), doors: next } })
+      save({ completedDoors: next })
       return next
     })
   }
@@ -66,7 +71,7 @@ export default function App() {
 
   const setNetItems = (items) => {
     setNetItemsState(items)
-    persist({ netItems: items })
+    save({ netItems: items })
   }
 
   // A completion drops a material block onto the Stack (~500ms settle).
@@ -97,7 +102,7 @@ export default function App() {
   const questDone = (quest) => {
     const remaining = quests.filter((q) => q !== quest)
     setQuests(remaining)
-    persist({ quests: remaining })
+    save({ quests: remaining })
     setSelectedQuest(remaining[0] || null)
     land('bluegold')
     if (remaining.length === 0) markDoor('quests')

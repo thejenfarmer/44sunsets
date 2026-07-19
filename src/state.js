@@ -73,7 +73,14 @@ export function daySegments() {
 }
 
 export function callOverride() {
-  return new URLSearchParams(location.search).get('call') // 'none' forces the slab door
+  return new URLSearchParams(location.search).get('call') // 'none' forces the slab, 'on' forces Jen's card
+}
+
+// The 2:00 call is upcoming through the morning (Jen's card holds the 4th
+// slot); once it's past, The Impossible Thing takes the slot for the rest of
+// the day. Completing the session also frees the slot early.
+export function scheduledCallDefault() {
+  return new Date().getHours() < 14 ? { time: '2:00' } : null
 }
 
 export function outfitOverride() {
