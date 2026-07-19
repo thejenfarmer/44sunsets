@@ -73,6 +73,25 @@ function DoneSub({ dark }) {
   )
 }
 
+// Jen's card keeps its own design in every sky: the cream card, her warm
+// avatar, and the sanctioned "2:00" — a human, not a material.
+function SessionCard({ tilt, minHeight, done, time, go }) {
+  return (
+    <button
+      className="door"
+      style={{ minHeight, background: '#FFFDF6', color: '#221A12', border: '1px solid rgba(34,26,18,.1)', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -16px rgba(34,26,18,.35)', opacity: done ? DONE_OPACITY : 1 }}
+      onClick={() => go('session')}
+    >
+      <Avatar size={44} />
+      <span style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+        <span style={{ font: "700 18px/1.2 'Poppins',sans-serif", letterSpacing: '-.01em' }}>Focus call with Jen</span>
+        <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>{done ? 'Done today.' : time}</span>
+      </span>
+      {done ? <DoneMark /> : <span className="door-arrow" style={{ background: 'rgba(34,26,18,.07)', color: 'rgba(34,26,18,.6)' }}>→</span>}
+    </button>
+  )
+}
+
 function TopRow({ night, go }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 4 }}>
@@ -122,16 +141,7 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
     const tilt = TILTS[i % TILTS.length]
     const done = isDone(key)
     if (key === 'session') {
-      return (
-        <button key={key} className="door" style={{ minHeight, background: '#FFFDF6', border: '1px solid rgba(34,26,18,.1)', transform: `rotate(${tilt}deg)`, boxShadow: '0 14px 26px -16px rgba(34,26,18,.35)', opacity: done ? DONE_OPACITY : 1 }} onClick={() => go('session')}>
-          <Avatar size={44} />
-          <span style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
-            <span style={{ font: "700 18px/1.2 'Poppins',sans-serif", letterSpacing: '-.01em' }}>Focus call with Jen</span>
-            <span style={{ font: "500 13px/1 'Poppins',sans-serif", color: 'rgba(34,26,18,.55)' }}>{done ? 'Done today.' : scheduledCall.time}</span>
-          </span>
-          {done ? <DoneMark /> : <span className="door-arrow" style={{ background: 'rgba(34,26,18,.07)', color: 'rgba(34,26,18,.6)' }}>→</span>}
-        </button>
-      )
+      return <SessionCard key={key} tilt={tilt} minHeight={minHeight} done={done} time={scheduledCall.time} go={go} />
     }
     if (key === 'impossible') {
       return (
@@ -399,17 +409,21 @@ function GoldenHome({ doors, isDone, go }) {
       </div>
       <div className="spacer col" style={{ justifyContent: 'flex-end', gap: 12, paddingTop: 24 }}>
         {doors.map((key, i) => {
-          const [bg, border] = GLASS[key] || GLASS.deep
           const done = isDone(key)
+          const tilt = [-1, 0.8, -0.6, 0.7, -0.5][i % 5]
+          if (key === 'session') {
+            return <SessionCard key={key} tilt={tilt} minHeight={minHeight} done={done} time="2:00" go={go} />
+          }
+          const [bg, border] = GLASS[key] || GLASS.deep
           return (
             <button
               key={key}
               className="door"
-              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(6px)', transform: `rotate(${[-1, 0.8, -0.6, 0.7, -0.5][i % 5]}deg)`, minHeight, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
+              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(6px)', transform: `rotate(${tilt}deg)`, minHeight, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
               onClick={() => go(SCREENS[key] || 'deep')}
             >
               <span style={{ flex: 1 }}>
-                <span className="door-name" style={{ flex: 'none' }}>{key === 'session' ? 'Focus call with Jen' : NAMES[key]}</span>
+                <span className="door-name" style={{ flex: 'none' }}>{NAMES[key]}</span>
                 {done && <DoneSub dark />}
               </span>
               <span className="door-arrow" style={{ background: done ? 'rgba(250,243,231,.16)' : 'rgba(250,243,231,.18)' }}>{done ? '✓' : '→'}</span>
@@ -450,31 +464,29 @@ function MoonlitHome({ doors, isDone, go }) {
       <div className="spacer col" style={{ justifyContent: 'center', gap: 12, position: 'relative' }}>
         {doors.map((key, i) => {
           const done = isDone(key)
-          const sea = {
-            ...NIGHT_GRADS,
-            impossible: 'linear-gradient(150deg,#174D63,#1B3A4A)',
-            session: 'rgba(250,243,231,.12)',
+          const tilt = [-1.4, 1, -0.7, 0.9, -0.8][i % 5]
+          const minHeight = doors.length > 4 ? 88 : 112
+          if (key === 'session') {
+            return <SessionCard key={key} tilt={tilt} minHeight={minHeight} done={done} time="2:00" go={go} />
           }
-          const isSession = key === 'session'
+          const sea = { ...NIGHT_GRADS, impossible: 'linear-gradient(150deg,#174D63,#1B3A4A)' }
           return (
             <button
               key={key}
               className="door"
               style={{
                 background: sea[key],
-                border: isSession ? '1px solid rgba(250,243,231,.3)' : 'none',
                 borderRadius: 28,
-                minHeight: doors.length > 4 ? 88 : 112,
-                transform: `rotate(${[-1.4, 1, -0.7, 0.9, -0.8][i % 5]}deg)`,
-                boxShadow: isSession ? 'none' : '0 14px 30px -12px rgba(23,77,99,.9)',
+                minHeight,
+                transform: `rotate(${tilt}deg)`,
+                boxShadow: '0 14px 30px -12px rgba(23,77,99,.9)',
                 color: '#FAF3E7',
                 opacity: done ? DONE_OPACITY : 1,
               }}
               onClick={() => go(SCREENS[key])}
             >
-              {isSession && <Avatar size={38} />}
               <span style={{ flex: 1 }}>
-                <span className="door-name" style={{ flex: 'none' }}>{isSession ? 'Focus call with Jen' : NAMES[key]}</span>
+                <span className="door-name" style={{ flex: 'none' }}>{NAMES[key]}</span>
                 {done && <DoneSub dark />}
               </span>
               <span className="door-arrow" style={{ background: 'rgba(250,243,231,.16)' }}>{done ? '✓' : '→'}</span>
@@ -591,17 +603,22 @@ function StarfieldHome({ doors, isDone, go }) {
       </div>
       <div className="spacer col" style={{ justifyContent: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
         {doors.map((key, i) => {
-          const [bg, border] = GLASS[key]
           const done = isDone(key)
+          const tilt = [-1, 0.8, -0.6, 0.7, -0.5][i % 5]
+          const minHeight = doors.length > 4 ? 84 : 104
+          if (key === 'session') {
+            return <SessionCard key={key} tilt={tilt} minHeight={minHeight} done={done} time="2:00" go={go} />
+          }
+          const [bg, border] = GLASS[key]
           return (
             <button
               key={key}
               className="door"
-              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(4px)', transform: `rotate(${[-1, 0.8, -0.6, 0.7, -0.5][i % 5]}deg)`, minHeight: doors.length > 4 ? 84 : 104, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
+              style={{ background: bg, border: `1px solid ${border}`, backdropFilter: 'blur(4px)', transform: `rotate(${tilt}deg)`, minHeight, color: '#FAF3E7', opacity: done ? DONE_OPACITY : 1 }}
               onClick={() => go(SCREENS[key])}
             >
               <span className="door-name">
-                {key === 'session' ? 'Focus call with Jen' : NAMES[key]} {done ? '' : '→'}
+                {NAMES[key]} {done ? '' : '→'}
                 {done && <DoneSub dark />}
               </span>
             </button>
