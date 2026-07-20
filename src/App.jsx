@@ -7,6 +7,7 @@ import SideQuests from './screens/SideQuests.jsx'
 import Session from './screens/Session.jsx'
 import Settings from './screens/Settings.jsx'
 import InviteSheet from './screens/InviteSheet.jsx'
+import Onboarding from './screens/Onboarding.jsx'
 import { Net, Stack } from './screens/NetStack.jsx'
 import { DEMO, callOverride, clearPersisted, outfitForToday, outfitOverride, scheduledCallDefault, seedStack, skyModeNow, stackBlock } from './state.js'
 
@@ -14,6 +15,9 @@ import { DEMO, callOverride, clearPersisted, outfitForToday, outfitOverride, sch
 clearPersisted()
 
 export default function App() {
+  // Onboarding runs before Home on every fresh load (nothing persisted);
+  // once "Step inside →" drops the rails, it's only reachable by refresh.
+  const [onboarded, setOnboarded] = useState(false)
   const [screen, setScreen] = useState('home')
   const [stack, setStack] = useState(seedStack)
   const [netItems, setNetItems] = useState(DEMO.netItems)
@@ -92,7 +96,9 @@ export default function App() {
   }
 
   let body
-  if (screen === 'deep') {
+  if (!onboarded) {
+    body = <Onboarding onDone={() => setOnboarded(true)} />
+  } else if (screen === 'deep') {
     body = (
       <DeepFocus
         focusItem={focusItem}
