@@ -62,6 +62,9 @@ Tokens live in `src/styles.css`. The essentials, per the handoff spec:
 - No persistence: all demo state lives in memory, so a refresh restarts the
   demo with all five cards fresh. Any state persisted by earlier builds is
   removed on load.
+- Tap the date headline on Home to cycle through the sky's outfits (day:
+  tilted → marquee → ribbons; night: moonlit → night ribbons → starfield) —
+  a demo affordance on top of the daily deal.
 - Demo overrides: append `?sky=morning|golden|night`,
   `?outfit=tilted|marquee|ribbons|moonlit|nightribbons|starfield`, or
   `?call=none` (hides Jen's card) to the URL.

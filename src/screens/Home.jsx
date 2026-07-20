@@ -118,10 +118,10 @@ function Stars() {
   )
 }
 
-export default function Home({ outfit, skyMode, scheduledCall, completedDoors, go }) {
+export default function Home({ outfit, skyMode, scheduledCall, completedDoors, go, cycleOutfit }) {
   const doors = orderedDoors(completedDoors, scheduledCall)
   const isDone = (d) => completedDoors.includes(d)
-  const props = { doors, isDone, scheduledCall, go }
+  const props = { doors, isDone, scheduledCall, go, cycleOutfit }
   if (skyMode === 'golden') return <GoldenHome {...props} />
   if (skyMode === 'night') {
     if (outfit.night === 'starfield') return <StarfieldHome {...props} />
@@ -134,7 +134,7 @@ export default function Home({ outfit, skyMode, scheduledCall, completedDoors, g
 }
 
 // 14d — tilted material doors, names only, dawn wash + sun glow, day-shape bar.
-function TiltedHome({ doors, isDone, scheduledCall, go }) {
+function TiltedHome({ doors, isDone, scheduledCall, go, cycleOutfit }) {
   const compact = doors.length > 4
   const minHeight = compact ? 90 : 104
   const renderDoor = (key, i) => {
@@ -197,7 +197,9 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
       />
       <TopRow go={go} />
       <div style={{ textAlign: 'center', position: 'relative', paddingTop: 4 }}>
-        <div style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{dateHeadline()}</div>
+        <button style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em', textAlign: 'center', width: '100%' }} onClick={cycleOutfit}>
+          {dateHeadline()}
+        </button>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(34,26,18,.6)', marginTop: 6 }}>
           Pick a door. The rest is inside.
         </div>
@@ -212,7 +214,7 @@ function TiltedHome({ doors, isDone, scheduledCall, go }) {
 }
 
 // 14h — ribbons: full-bleed nameless bands, unequal heights = the day's shape.
-function RibbonsHome({ doors, isDone, scheduledCall, go }) {
+function RibbonsHome({ doors, isDone, scheduledCall, go, cycleOutfit }) {
   const BANDS = {
     deep: { flex: 2, grad: 'linear-gradient(165deg,#FBE3CE 0%,#F8B9A6 72%,#F6C95C 120%)', size: 40, color: '#221A12' },
     knockout: { flex: 1.1, grad: 'linear-gradient(165deg,#7CA75F -20%,#2E9B82 45%,#2F7FA0 105%)', size: 25, color: '#FAF3E7' },
@@ -277,9 +279,16 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
           >
             {first && (
               <div style={{ position: 'absolute', top: 64, left: 26, right: 26, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ font: "600 12.5px/1 'Poppins',sans-serif", color: key === 'deep' ? 'rgba(34,26,18,.55)' : 'rgba(250,243,231,.7)' }}>
+                <span
+                  role="button"
+                  style={{ font: "600 12.5px/1 'Poppins',sans-serif", color: key === 'deep' ? 'rgba(34,26,18,.55)' : 'rgba(250,243,231,.7)' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    cycleOutfit()
+                  }}
+                >
                   {dateHeadline().replace(/\.$/, '')}
-                </div>
+                </span>
                 <span
                   role="button"
                   style={{ width: 30, height: 30, borderRadius: '50%', background: '#FFFDF6', display: 'flex', alignItems: 'center', justifyContent: 'center', font: "600 12px/1 'Poppins',sans-serif", color: '#221A12' }}
@@ -304,12 +313,14 @@ function RibbonsHome({ doors, isDone, scheduledCall, go }) {
 }
 
 // 14f — marquee: the headliner fills the canvas; others peek in as edge tabs.
-function MarqueeHome({ isDone, scheduledCall, go }) {
+function MarqueeHome({ isDone, scheduledCall, go, cycleOutfit }) {
   return (
     <div className="screen grain" style={{ background: '#FAF3E7', padding: '74px 20px 40px', gap: 16, overflow: 'hidden' }}>
       <TopRow go={go} />
       <div style={{ textAlign: 'center', position: 'relative', paddingTop: 2, zIndex: 4 }}>
-        <div style={{ font: "700 32px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{dateHeadline()}</div>
+        <button style={{ font: "700 32px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em', textAlign: 'center', width: '100%' }} onClick={cycleOutfit}>
+          {dateHeadline()}
+        </button>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(34,26,18,.6)', marginTop: 6 }}>One door wide open. Three ajar.</div>
       </div>
       <div className="spacer" style={{ position: 'relative' }}>
@@ -439,7 +450,7 @@ function GoldenHome({ doors, isDone, go }) {
 }
 
 // 14l — moonlit stack: tilted doors re-mixed in sea materials, names only.
-function MoonlitHome({ doors, isDone, go }) {
+function MoonlitHome({ doors, isDone, go, cycleOutfit }) {
   return (
     <div className="screen" style={{ background: 'linear-gradient(180deg,#174D63 0%,#1B3A4A 45%,#221A12 110%)', color: '#FAF3E7', padding: '74px 20px 40px', gap: 20, overflow: 'hidden' }}>
       <div
@@ -458,7 +469,9 @@ function MoonlitHome({ doors, isDone, go }) {
       />
       <TopRow night go={go} />
       <div style={{ textAlign: 'center', position: 'relative', paddingTop: 4 }}>
-        <div style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{weekday()} night.</div>
+        <button style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em', textAlign: 'center', width: '100%' }} onClick={cycleOutfit}>
+          {weekday()} night.
+        </button>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(250,243,231,.6)', marginTop: 6 }}>The ocean's still up if you are.</div>
       </div>
       <div className="spacer col" style={{ justifyContent: 'center', gap: 12, position: 'relative' }}>
@@ -503,7 +516,7 @@ function MoonlitHome({ doors, isDone, go }) {
 
 // 14m — night ribbons: near-black sky band with micro stars; at night the
 // scheduled human is a promise, not a prompt.
-function NightRibbonsHome({ doors, isDone, scheduledCall, go }) {
+function NightRibbonsHome({ doors, isDone, scheduledCall, go, cycleOutfit }) {
   const BANDS = {
     deep: { flex: 1.6, grad: 'linear-gradient(180deg,#221A12 0%,#174D63 70%,#2F7FA0 120%)', size: 38 },
     knockout: { flex: 1, grad: 'linear-gradient(165deg,#2F7FA0 -20%,#155A4E 55%,#2E9B82 130%)', size: 25 },
@@ -557,7 +570,16 @@ function NightRibbonsHome({ doors, isDone, scheduledCall, go }) {
             {first && (
               <>
                 <div style={{ position: 'absolute', top: 64, left: 26, right: 26, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ font: "600 12.5px/1 'Poppins',sans-serif", color: 'rgba(250,243,231,.55)' }}>{weekday()} night</div>
+                  <span
+                    role="button"
+                    style={{ font: "600 12.5px/1 'Poppins',sans-serif", color: 'rgba(250,243,231,.55)' }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      cycleOutfit()
+                    }}
+                  >
+                    {weekday()} night
+                  </span>
                   <span
                     role="button"
                     onClick={(e) => {
@@ -585,7 +607,7 @@ function NightRibbonsHome({ doors, isDone, scheduledCall, go }) {
 }
 
 // 14o — starfield: micro stars everywhere, doors as clean translucent glass.
-function StarfieldHome({ doors, isDone, go }) {
+function StarfieldHome({ doors, isDone, go, cycleOutfit }) {
   const GLASS = {
     deep: ['rgba(47,127,160,.22)', 'rgba(143,199,224,.35)'],
     knockout: ['rgba(21,90,78,.3)', 'rgba(124,167,95,.4)'],
@@ -598,7 +620,9 @@ function StarfieldHome({ doors, isDone, go }) {
       <Stars />
       <TopRow night go={go} />
       <div style={{ textAlign: 'center', position: 'relative', paddingTop: 4, zIndex: 2 }}>
-        <div style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em' }}>{weekday()} night.</div>
+        <button style={{ font: "700 34px/1.15 'Poppins',sans-serif", letterSpacing: '-.015em', textAlign: 'center', width: '100%' }} onClick={cycleOutfit}>
+          {weekday()} night.
+        </button>
         <div style={{ font: "500 14px/1.45 'Poppins',sans-serif", color: 'rgba(250,243,231,.6)', marginTop: 6 }}>Clear skies. Everything can wait.</div>
       </div>
       <div className="spacer col" style={{ justifyContent: 'center', gap: 12, position: 'relative', zIndex: 2 }}>

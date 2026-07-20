@@ -39,7 +39,19 @@ export default function App() {
   const afterSendRef = useRef(null)
 
   const skyMode = skyModeNow()
-  const outfit = { ...outfitForToday(pinnedLayout), ...outfitOverride() }
+
+  // Demo affordance: tapping the date headline cycles through the wardrobe's
+  // outfits for the current sky (day: tilted → marquee → ribbons; night:
+  // moonlit → night ribbons → starfield).
+  const [outfitShift, setOutfitShift] = useState(0)
+  const cycleOutfit = () => setOutfitShift((s) => s + 1)
+  const DAY_LOOKS = ['tilted', 'marquee', 'ribbons']
+  const NIGHT_LOOKS = ['moonlit', 'nightribbons', 'starfield']
+  const dealt = { ...outfitForToday(pinnedLayout), ...outfitOverride() }
+  const outfit = {
+    day: DAY_LOOKS[(DAY_LOOKS.indexOf(dealt.day) + outfitShift) % 3],
+    night: NIGHT_LOOKS[(NIGHT_LOOKS.indexOf(dealt.night) + outfitShift) % 3],
+  }
 
   const goHome = () => {
     setLanding(null)
@@ -152,7 +164,9 @@ export default function App() {
   } else if (screen === 'stack') {
     body = <Stack stack={stack} night={skyMode === 'night'} goHome={goHome} />
   } else {
-    body = <Home outfit={outfit} skyMode={skyMode} scheduledCall={scheduledCall} completedDoors={completedDoors} go={go} />
+    body = (
+      <Home outfit={outfit} skyMode={skyMode} scheduledCall={scheduledCall} completedDoors={completedDoors} go={go} cycleOutfit={cycleOutfit} />
+    )
   }
 
   return (
