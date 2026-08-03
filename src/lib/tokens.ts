@@ -40,3 +40,12 @@ export const SKY = {
   night: 'linear-gradient(180deg,#0E2A3A 0%,#123043 45%,#0A1E2B 100%)',
 } as const;
 export type SkyMode = keyof typeof SKY;
+
+// Home's background follows the real time of day (the DATE stays hard-coded per §6,
+// but the sky is live): day → golden hour → night.
+export function skyByClock(d: Date = new Date()): SkyMode {
+  const h = d.getHours();
+  if (h >= 20 || h < 6) return 'night';
+  if (h >= 17) return 'golden';
+  return 'day';
+}

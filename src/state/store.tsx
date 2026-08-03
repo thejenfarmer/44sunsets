@@ -1,12 +1,10 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import {
-  seedNet, seedStack, seedCall, seedThread, HARD_DATE,
+  seedNet, seedStack, seedCall, HARD_DATE,
   type NetItem, type Feel, type KnockItem, type Block, type Piece,
 } from '../lib/seed';
 import { computeDeal } from '../lib/deal';
 import type { DoorKey, SkyMode } from '../lib/tokens';
-
-const KEY = '44s.demo.v2';
 
 export interface Thread { text: string; owner: 'deep' }
 export interface State {
@@ -55,13 +53,6 @@ function fresh(): State {
   };
 }
 
-function load(): State {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) return { ...fresh(), ...JSON.parse(raw) };
-  } catch { /* ignore */ }
-  return fresh();
-}
 
 interface Ctx {
   s: State;
@@ -74,16 +65,15 @@ interface Ctx {
 const StoreCtx = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [s, setS] = useState<State>(load);
-
-  useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* ignore */ }
-  }, [s]);
+  // In-memory only — nothing is persisted, so a browser refresh starts the demo
+  // over from onboarding (per the demo reset rule). State survives in-app
+  // navigation; only a reload resets it.
+  const [s, setS] = useState<State>(fresh);
 
   const set: Ctx['set'] = (patch) =>
     setS((prev) => ({ ...prev, ...(typeof patch === 'function' ? patch(prev) : patch) }));
 
-  const reset = () => { try { localStorage.removeItem(KEY); } catch { /* ignore */ } setS(fresh()); };
+  const reset = () => setS(fresh());
 
   const landBlock: Ctx['landBlock'] = (material, label) =>
     setS((prev) => ({ ...prev, stack: [...prev.stack, { id: 'b' + Date.now() + Math.round(performance.now()), material, label, at: prev.stack.length + 1 }] }));

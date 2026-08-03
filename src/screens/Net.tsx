@@ -41,12 +41,7 @@ export function Net() {
         <h1 style={{ margin: '8px 0 4px', fontWeight: 700, letterSpacing: '-.015em', fontSize: 24, lineHeight: 1.2 }}>
           Caught so your head doesn’t have to hold them.
         </h1>
-        <p style={{ margin: '0 0 10px', fontSize: 13.5, color: 'rgba(34,26,18,.55)' }}>Tap one to open it. Hold one to let it go.</p>
-        {netUnsorted > 0 && (
-          <button onClick={() => nav('/net/sort')} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', fontSize: 13, color: 'rgba(34,26,18,.55)', padding: '2px 0 8px' }}>
-            Sort what’s new →
-          </button>
-        )}
+        <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'rgba(34,26,18,.55)' }}>Tap one to open it. Hold one to let it go.</p>
 
         <div style={{ flex: 1, overflowY: 'auto', border: '1.5px dashed rgba(34,26,18,.28)', borderRadius: 18, padding: 16, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
           {s.net.length === 0 && <div style={{ margin: 'auto', color: 'rgba(34,26,18,.4)', fontSize: 13.5 }}>Nothing caught. Your head can rest.</div>}

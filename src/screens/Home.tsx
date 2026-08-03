@@ -7,7 +7,7 @@ import { NetIcon, CallChip, Avatar } from '../components/home-parts';
 import { Sheet } from '../components/Sheet';
 import { FeelChip } from '../components/FeelChip';
 import { DarkPill, QuietExit } from '../components/ui';
-import { SKY, type DoorKey } from '../lib/tokens';
+import { SKY, skyByClock, type DoorKey } from '../lib/tokens';
 import { useStore } from '../state/store';
 import { buzz } from '../lib/haptics';
 import type { Feel } from '../lib/seed';
@@ -21,7 +21,10 @@ export function Home() {
   const [capture, setCapture] = useState(false);
   const [draft, setDraft] = useState('');
   const [feel, setFeel] = useState<Feel>(null);
-  const night = s.skyMode === 'night';
+  const sky = skyByClock();
+  const night = sky === 'night';
+  const subline = allDoneLine();
+  function allDoneLine() { return sky === 'golden' ? 'One more good thing before dark.' : sky === 'night' ? 'The ocean’s still up if you are.' : 'Pick a door. The rest is inside.'; }
 
   const routeFor: Record<DoorKey, string> = { deep: '/deep-work', knockout: '/knockout', side: '/side-quests', impossible: '/impossible' };
 
@@ -43,7 +46,7 @@ export function Home() {
   const callState: 'later' | 'soon' | 'live' = 'later';
 
   return (
-    <Shell bg={SKY[s.skyMode]} dark={night}>
+    <Shell bg={SKY[sky]} dark={night}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         <Grain variant={night ? 'dark' : 'light'} />
 
@@ -60,7 +63,7 @@ export function Home() {
         <div style={{ position: 'relative', padding: '10px 22px 16px' }}>
           <h1 style={{ margin: 0, fontWeight: 700, letterSpacing: '-.015em', fontSize: 27, lineHeight: 1.15 }}>{s.date}</h1>
           <p style={{ margin: '6px 0 0', fontSize: 13.5, color: night ? 'rgba(250,243,231,.7)' : 'rgba(34,26,18,.55)' }}>
-            {allDone ? 'That’s the day, wearing well.' : 'Pick a door. The rest is inside.'}
+            {allDone ? 'That’s the day, wearing well.' : subline}
           </p>
         </div>
 

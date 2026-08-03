@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useStore } from './state/store';
 import { Onboarding } from './screens/Onboarding';
 import { Home } from './screens/Home';
@@ -15,6 +15,12 @@ import { Settings } from './screens/Settings';
 
 export function App() {
   const { s } = useStore();
+  const loc = useLocation();
+  // State is in-memory, so a refresh resets onboardingSeen → any deep route
+  // (e.g. /home) bounces back to onboarding. Refresh = start the demo over.
+  if (!s.onboardingSeen && loc.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
   return (
     <Routes>
       <Route path="/" element={<Navigate to={s.onboardingSeen ? '/home' : '/onboarding'} replace />} />

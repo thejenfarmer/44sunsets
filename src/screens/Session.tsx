@@ -81,7 +81,6 @@ export function Session() {
           <button onClick={() => setShown(!shown)} style={{ background: 'none', border: 'none', fontSize: 13, color: 'rgba(34,26,18,.55)' }}>{shown ? `${who} can see your task ✓` : `Show ${who} what you are working on →`}</button>
         </div>
         <DarkPill onClick={() => { landBlock('deep', work); buzz(20); setStep('landed'); }}>Mark it done</DarkPill>
-        <QuietExit onClick={() => nav('/home')}>Stop here — leave a note for next time →</QuietExit>
       </div>
     </Shell>
   );
