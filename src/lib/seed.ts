@@ -31,7 +31,7 @@ export const seedKnockout: KnockItem[] = [
 
 export const seedSideQuests = ['Rewrite the traction slide', 'Sketch the onboarding flow', 'Riff on the pricing page copy'];
 
-export const seedCall = { with: 'Jen', at: '2:00' };
+export const seedCall = { with: 'Michel', at: '2:00' };
 
 // ~6 blocks of prior work in mixed materials.
 export const seedStack: Block[] = [
