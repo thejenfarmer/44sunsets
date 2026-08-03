@@ -51,7 +51,7 @@ export function Home() {
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 14px 0' }}>
           <NetIcon count={netUnsorted} dark={night} onClick={() => nav('/net')} onHold={() => { buzz(20); setCapture(true); }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            {s.call && <CallChip state={callState} at={s.call.at} dark={night} onClick={() => nav('/session')} />}
+            {s.call && <CallChip state={callState} at={s.call.at} who={s.call.with} dark={night} onClick={() => nav('/session')} />}
             <Avatar onClick={() => nav('/profile')} />
           </div>
         </div>

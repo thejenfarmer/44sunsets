@@ -31,22 +31,25 @@ export function NetIcon({ count, dark = false, onClick, onHold }: { count: numbe
   );
 }
 
-// Call chip (23e): absent / cream "2:00" / cream "in 5 min" / sunset "Join" (live).
-export function CallChip({ state, at, onClick, dark = false }: { state: 'later' | 'soon' | 'live'; at: string; onClick: () => void; dark?: boolean }) {
+// Call chip (23e): a scheduled call WITH a person — a small avatar + who + when,
+// so it never reads as a bare clock. States: "Jen · 2:00" / "Jen · in 5 min" / sunset "Join Jen" (live).
+export function CallChip({ state, at, who = 'Jen', onClick, dark = false }: { state: 'later' | 'soon' | 'live'; at: string; who?: string; onClick: () => void; dark?: boolean }) {
   const live = state === 'live';
+  const label = live ? `Join ${who}` : state === 'soon' ? `${who} · in 5 min` : `${who} · ${at}`;
   return (
     <button
       onClick={onClick}
-      aria-label={live ? 'Join the call' : `Focus call at ${at}`}
+      aria-label={live ? `Join the focus call with ${who}` : `Focus call with ${who} at ${at}`}
       style={{
-        height: 34, padding: '0 12px', borderRadius: 999, border: 'none', fontWeight: 600, fontSize: 13,
+        height: 34, padding: '0 12px 0 5px', borderRadius: 999, border: 'none', fontWeight: 600, fontSize: 12.5,
         background: live ? 'linear-gradient(150deg,#F8B9A6,#F6C95C)' : dark ? 'rgba(250,243,231,.14)' : '#FFFDF6',
         color: live ? '#221A12' : dark ? '#FAF3E7' : '#221A12',
         boxShadow: live ? 'none' : '0 1px 3px rgba(34,26,18,.12)',
         display: 'flex', alignItems: 'center', gap: 6,
       }}
     >
-      {live ? 'Join' : state === 'soon' ? 'in 5 min' : at}
+      <span style={{ width: 24, height: 24, borderRadius: '50%', flex: 'none', background: 'linear-gradient(135deg,#F4A69B,#F6C95C)', color: '#221A12', fontWeight: 600, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{who[0]}</span>
+      {label}
     </button>
   );
 }

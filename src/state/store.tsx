@@ -6,7 +6,7 @@ import {
 import { computeDeal } from '../lib/deal';
 import type { DoorKey, SkyMode } from '../lib/tokens';
 
-const KEY = '44s.demo.v1';
+const KEY = '44s.demo.v2';
 
 export interface Thread { text: string; owner: 'deep' }
 export interface State {
@@ -41,7 +41,9 @@ function fresh(): State {
     pinnedLayout: false,
     net: seedNet.map((n) => ({ ...n, sorted: false })),
     deepWorkFocus: deal.deepWork,
-    thread: { text: seedThread, owner: 'deep' },
+    // No pre-seeded thread: the "note from last time" only appears once the user
+    // has actually left one via Deep Work's "Stop here — leave a note" exit.
+    thread: null,
     knockout: { items: deal.knockout.map((k) => ({ ...k })), phase: 'pre' },
     sideQuests: deal.sideQuests.map((t) => ({ title: t, done: false })),
     selectedQuest: 0,

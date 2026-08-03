@@ -10,8 +10,8 @@ export const HARD_DATE = 'Monday, July 13.'; // never read the device clock
 
 export const seedNet: NetItem[] = [
   { id: 'n1', text: "Book Mom's cardiology follow-up", feel: null, source: 'email', project: 'family' },
-  { id: 'n2', text: "Reschedule Dad's hearing-aid fitting", feel: null, source: 'manual', project: 'family' },
-  { id: 'n3', text: "Call the insurance about Dad's claim", feel: 'dread', source: 'manual', project: 'family' },
+  { id: 'n2', text: 'Draft Q1 product roadmap', feel: null, source: 'manual', project: 'product' },
+  { id: 'n3', text: 'Ship new feature set', feel: null, source: 'manual', project: 'product' },
   { id: 'n4', text: 'Camp forms — due Friday', feel: null, source: 'email', project: 'family' },
   { id: 'n5', text: 'Rewrite the traction slide', feel: 'pull', source: 'manual', project: 'the deck' },
   { id: 'n6', text: 'Ask Sam for the churn numbers', feel: 'dread', source: 'slack', project: 'the deck' },
